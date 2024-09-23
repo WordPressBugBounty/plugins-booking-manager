@@ -1,0 +1,1578 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: booking-manager\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-26 08:46+0300\n"
+"PO-Revision-Date: \n"
+"Last-Translator: wpdevelop <info@wpdevelop.com>\n"
+"Language-Team: wpdevelop <info@wpbookingcalendar.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: ..\n"
+"X-Generator: Poedit 2.0.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: core/admin/api-settings.php:59
+msgid "Default IP address loc"
+msgstr ""
+
+#: core/admin/api-settings.php:60
+msgid ""
+"Enter default IP address for grant access to download file only for specific IP. Or leave empty "
+"for having no lock."
+msgstr ""
+
+#: core/admin/api-settings.php:62
+msgid "Note"
+msgstr ""
+
+#: core/admin/api-settings.php:63
+msgid "To specify an IP range for grant access, use configuration like"
+msgstr ""
+
+#: core/admin/api-settings.php:64 core/admin/api-settings.php:65 core/admin/api-settings.php:66
+msgid "Example"
+msgstr ""
+
+#: core/admin/api-settings.php:83
+msgid "Start Day of the week"
+msgstr ""
+
+#: core/admin/api-settings.php:84
+msgid "Select your start day of the week"
+msgstr ""
+
+#: core/admin/api-settings.php:86
+msgid "Sunday"
+msgstr ""
+
+#: core/admin/api-settings.php:87
+msgid "Monday"
+msgstr ""
+
+#: core/admin/api-settings.php:88
+msgid "Tuesday"
+msgstr ""
+
+#: core/admin/api-settings.php:89
+msgid "Wednesday"
+msgstr ""
+
+#: core/admin/api-settings.php:90
+msgid "Thursday"
+msgstr ""
+
+#: core/admin/api-settings.php:91
+msgid "Friday"
+msgstr ""
+
+#: core/admin/api-settings.php:92
+msgid "Saturday"
+msgstr ""
+
+#: core/admin/api-settings.php:104
+msgid "Date Format"
+msgstr ""
+
+#: core/admin/api-settings.php:109
+msgid "F j, Y"
+msgstr ""
+
+#: core/admin/api-settings.php:112 core/admin/api-settings.php:163
+msgid "Custom"
+msgstr ""
+
+#: core/admin/api-settings.php:138
+#, php-format
+msgid "Type your date format for emails and the item table. %sDocumentation on date formatting%s"
+msgstr ""
+
+#: core/admin/api-settings.php:155
+msgid "Time Format"
+msgstr ""
+
+#: core/admin/api-settings.php:189
+#, php-format
+msgid "Type your time format for emails and listing. %sDocumentation on time formatting%s"
+msgstr ""
+
+#: core/admin/api-settings.php:206
+msgid "Show advanced settings of JavaScript loading"
+msgstr ""
+
+#: core/admin/api-settings.php:207
+msgid "Hide advanced settings of JavaScript loading"
+msgstr ""
+
+#: core/admin/api-settings.php:225
+msgid "Disable Bootstrap loading on Back-End"
+msgstr ""
+
+#: core/admin/api-settings.php:226
+msgid ""
+" If your theme or some other plugin is load the BootStrap JavaScripts, you can disable  loading "
+"of this script by this plugin."
+msgstr ""
+
+#: core/admin/api-settings.php:312
+msgid "Plugin System Info"
+msgstr ""
+
+#: core/admin/api-settings.php:337
+msgid "Plugin menu position"
+msgstr ""
+
+#: core/admin/api-settings.php:340
+msgid "Top"
+msgstr ""
+
+#: core/admin/api-settings.php:341
+msgid "Middle"
+msgstr ""
+
+#: core/admin/api-settings.php:342
+msgid "Bottom"
+msgstr ""
+
+#: core/admin/api-settings.php:368
+msgid "Permission for plugin menu"
+msgstr ""
+
+#: core/admin/api-settings.php:405
+msgid "Delete plugin settings, when plugin deactivated"
+msgstr ""
+
+#: core/admin/api-settings.php:406
+msgid "Check this box to delete plugin settings options, when you uninstall this plugin."
+msgstr ""
+
+#: core/admin/api-settings.php:569 core/admin/api-settings.php:586 core/admin/api-settings.php:617
+#: core/admin/api-settings.php:630 core/admin/api-settings.php:663 core/wpbc/wpbm-bc-import.php:144
+msgid "Warning"
+msgstr ""
+
+#: core/admin/api-settings.php:570
+msgid ""
+"You allow unlimited number of items per same dates, its can be a reason of double items on the "
+"same date. Do you really want to do this?"
+msgstr ""
+
+#: core/admin/api-settings.php:587
+msgid "This feature can impact to speed of submitting item. Do you really want to do this?"
+msgstr ""
+
+#: core/admin/api-settings.php:618 core/admin/api-settings.php:631
+msgid ""
+"You are need to be sure what you are doing. You are disable of loading some JavaScripts Do you "
+"really want to do this?"
+msgstr ""
+
+#: core/admin/api-settings.php:664
+msgid ""
+"If you check this option, all data will be deleted when you uninstall this plugin. Do you really "
+"want to do this?"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:49
+#: core/admin/exmpl-page-email-link-user.php:49
+msgid "Enable / Disable"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:50
+#: core/admin/exmpl-page-email-link-user.php:50
+msgid "Enable this email notification"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:75
+msgid "To"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:85
+#: core/admin/exmpl-page-email-download_notification.php:144
+#: core/admin/exmpl-page-email-link-user.php:144
+msgid "Email Address"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:85
+#: core/admin/exmpl-page-email-download_notification.php:144
+#: core/admin/exmpl-page-email-download_notification.php:185
+#: core/admin/exmpl-page-email-link-user.php:144 core/admin/exmpl-page-email-link-user.php:186
+msgid "Required"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:110
+#: core/admin/exmpl-page-email-download_notification.php:162
+#: core/admin/exmpl-page-email-link-user.php:162 core/admin/exmpl-page-files-sortable.php:291
+msgid "Title"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:110
+#: core/admin/exmpl-page-email-download_notification.php:162
+#: core/admin/exmpl-page-email-link-user.php:162
+msgid "optional"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:134
+#: core/admin/exmpl-page-email-link-user.php:134 core/admin/wpbm-toolbar-tiny.php:585
+#: core/admin/wpbm-toolbar-tiny.php:604 core/admin/wpbm-toolbar-tiny.php:1033
+#: core/admin/wpbm-toolbar-tiny.php:1052
+msgid "From"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:182
+#, php-format
+msgid "Download notification of %s"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:184
+#: core/admin/exmpl-page-email-link-user.php:185
+msgid "Subject"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:185
+#: core/admin/exmpl-page-email-link-user.php:186
+#, php-format
+msgid "Type your email %ssubject%s."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:214
+#, php-format
+msgid ""
+"Hi. %s The %s have been downloaded. %s ===== User Info ===== %s To: %s IP:  %s User agent: %s "
+"Request url: %s ====================== %s ===== Product Summary ===== %s Expire at %s "
+"====================== %s"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:229
+#: core/admin/exmpl-page-email-link-user.php:208
+msgid "Content"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:230
+#: core/admin/exmpl-page-email-link-user.php:209
+msgid "Type your email message content."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:251
+#: core/admin/exmpl-page-email-link-user.php:230
+msgid "Email Heading"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:252
+#: core/admin/exmpl-page-email-link-user.php:231
+msgid "Enter main heading contained within the email notification."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:261
+#: core/admin/exmpl-page-email-link-user.php:240
+msgid "Email Footer Text"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:262
+#: core/admin/exmpl-page-email-link-user.php:241
+msgid "Enter text contained within footer of the email notification"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:272
+#: core/admin/exmpl-page-email-link-user.php:251
+msgid "Email template"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:273
+#: core/admin/exmpl-page-email-link-user.php:252
+msgid "Choose email template."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:277
+#: core/admin/exmpl-page-email-link-user.php:256
+msgid "Plain (without styles)"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:278
+#: core/admin/exmpl-page-email-link-user.php:257
+msgid "Standard 1 column"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:285
+#: core/admin/exmpl-page-email-link-user.php:264
+#, php-format
+msgid "You can override this email template in this folder %s"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:295
+#: core/admin/exmpl-page-email-link-user.php:274
+msgid "Base Color"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:296
+#: core/admin/exmpl-page-email-link-user.php:275
+msgid "The base color for email templates."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:297
+#: core/admin/exmpl-page-email-download_notification.php:306
+#: core/admin/exmpl-page-email-download_notification.php:315
+#: core/admin/exmpl-page-email-download_notification.php:324
+#: core/admin/exmpl-page-email-link-user.php:276 core/admin/exmpl-page-email-link-user.php:285
+#: core/admin/exmpl-page-email-link-user.php:294 core/admin/exmpl-page-email-link-user.php:303
+msgid "Default color"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:304
+#: core/admin/exmpl-page-email-link-user.php:283
+msgid "Background Color"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:305
+#: core/admin/exmpl-page-email-link-user.php:284
+msgid "The background color for email templates."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:313
+#: core/admin/exmpl-page-email-link-user.php:292
+msgid "Email Body Background Color"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:314
+#: core/admin/exmpl-page-email-link-user.php:293
+msgid "The main body background color for email templates."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:322
+#: core/admin/exmpl-page-email-link-user.php:301
+msgid "Email Body Text Colour"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:323
+#: core/admin/exmpl-page-email-link-user.php:302
+msgid "The main body text color for email templates."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:338
+#: core/admin/exmpl-page-email-link-user.php:317
+msgid "Email format"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:339
+#: core/admin/exmpl-page-email-link-user.php:318
+msgid "Choose which format of email to send."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:343
+#: core/admin/exmpl-page-email-link-user.php:322
+msgid "Plain text"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:350
+#: core/admin/exmpl-page-email-link-user.php:329 core/admin/exmpl-page-help-shortcodes.php:535
+#: core/admin/page-settings-listing.php:535
+msgid "HTML"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:351
+#: core/admin/exmpl-page-email-link-user.php:330
+msgid "Multipart"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:376
+#: core/admin/exmpl-page-email-link-user.php:355
+#, php-format
+msgid ""
+"For example: \"You have a new reservation %s on the following date(s): %s Contact information: "
+"%s You can approve or cancel this item at: %s Thank you, Reservation service.\""
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:376
+#: core/admin/exmpl-page-email-link-user.php:355
+msgid "here"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:422
+#: core/admin/exmpl-page-email-link-user.php:401 core/wpbm-functions.php:967
+msgid "Emails"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:423
+#: core/admin/exmpl-page-email-download_notification.php:424
+#: core/admin/exmpl-page-email-download_notification.php:448
+#: core/admin/exmpl-page-email-link-user.php:402 core/admin/exmpl-page-email-link-user.php:403
+#: core/admin/exmpl-page-email-link-user.php:427
+msgid "Emails Settings"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:447
+msgid "Download Notification"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:449
+#: core/admin/exmpl-page-email-download_notification.php:591
+msgid "Email about download notification, which is sending to admin"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:598
+#: core/admin/exmpl-page-email-link-user.php:577
+msgid "Header / Footer"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:605
+#: core/admin/exmpl-page-email-link-user.php:584
+msgid "Email Styles"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:617
+#: core/admin/exmpl-page-email-link-user.php:596 core/admin/exmpl-page-files-sortable.php:295
+#: core/admin/exmpl-wpbm-class-listing.php:123 core/admin/exmpl-wpbm-class-listing.php:143
+#: core/admin/exmpl-wpbm-toolbars.php:60
+msgid "Actions"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:621
+#: core/admin/exmpl-page-email-link-user.php:600
+msgid "Send Test Email"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:623
+#: core/admin/exmpl-page-email-download_notification.php:659
+#: core/admin/exmpl-page-email-link-user.php:602 core/admin/exmpl-page-email-link-user.php:638
+#: core/admin/exmpl-page-files-add.php:160 core/admin/exmpl-page-files-sortable.php:97
+#: core/admin/exmpl-page-help-shortcodes.php:115 core/admin/exmpl-page-help-shortcodes.php:154
+#: core/admin/exmpl-wpbm-toolbars.php:1232 core/admin/page-settings-listing.php:104
+#: core/admin/page-settings-listing.php:154 core/admin/page-settings.php:227
+msgid "Save Changes"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:641
+#: core/admin/exmpl-page-email-link-user.php:620
+msgid "Type"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:648
+#: core/admin/exmpl-page-email-link-user.php:627 core/admin/exmpl-page-help-shortcodes.php:51
+#: core/admin/exmpl-page-help-shortcodes.php:52 core/admin/exmpl-page-help-shortcodes.php:53
+#: core/admin/exmpl-page-help-shortcodes.php:147 core/admin/exmpl-wpbm-toolbars.php:364
+#: core/admin/exmpl-wpbm-toolbars.php:370 core/admin/page-root-ics.php:99
+#: core/admin/page-root-ics.php:107 core/admin/page-settings-listing.php:146
+msgid "Help"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:716
+#: core/admin/exmpl-page-email-link-user.php:697
+msgid "Email sent to "
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:718
+#: core/admin/exmpl-page-email-link-user.php:699 core/wpbm-emails.php:194
+msgid "Email had not sent. Some error occuered."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:809
+#: core/admin/exmpl-page-email-link-user.php:789
+msgid "Settings saved."
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:870
+#: core/admin/exmpl-page-email-download_notification.php:873
+#: core/admin/exmpl-page-email-link-user.php:850 core/admin/exmpl-page-email-link-user.php:853
+msgid "If empty then title defined as WordPress"
+msgstr ""
+
+#: core/admin/exmpl-page-email-download_notification.php:886
+#: core/admin/exmpl-page-email-link-user.php:866
+msgid ""
+"Email different from website DNS, its can be a reason of not delivery emails. Please use the "
+"email withing the same domain as your website!"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:59
+msgid "Copy to admin"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:60
+msgid "Enable / disable sending copy of this email notification to admin"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:183
+#, php-format
+msgid "Delivery of %s"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:201
+#, php-format
+msgid "Hello. %sThank you for requesting %s To download %s click the link below: %s Thank you, %s"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:426
+msgid "To User"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:428 core/admin/exmpl-page-email-link-user.php:570
+msgid "Email with download link, which is sending to user"
+msgstr ""
+
+#: core/admin/exmpl-page-email-link-user.php:939 core/any/api-emails.php:485
+msgid "Email copy to"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:32 core/admin/exmpl-page-files-add.php:149
+#: core/wpbm-functions.php:947 core/wpbm.php:145 core/wpbm.php:146
+msgid "Add New"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:33 core/admin/exmpl-page-files-add.php:34
+msgid "Manage Files"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:90
+msgid "Files List"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:103
+msgid "ID | Title | Version Number | Desciption | Path (URL)"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:125
+msgid "Please use one product per line."
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:126
+msgid "CSV product configuration structure"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:127
+#, php-format
+msgid "Or just use simple text at  row (without separators %s) for definition section."
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:146
+msgid "Choose files"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:147
+msgid "Insert"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:148
+msgid "Add New Product"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:149 core/wpbm.php:147
+msgid "Files"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:182
+msgid "How to add new product ?"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:183
+#, php-format
+msgid "Click on %s\"Add New\"%s button and upload your files"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:184
+#, php-format
+msgid "Enter Title, Version Number and Description at %s\"Attachment details\"%s section"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:184
+msgid "at right side of page"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:185
+msgid "Select one or multiple files and click on insert button"
+msgstr ""
+
+#: core/admin/exmpl-page-files-add.php:186
+msgid "Save the changes."
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:33 core/admin/exmpl-page-files-sortable.php:34
+msgid "Sortable List"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:35
+msgid "Manage List"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:90
+msgid "Products List"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:290 core/admin/exmpl-wpbm-class-listing.php:120
+#: core/admin/exmpl-wpbm-toolbars.php:666 core/admin/exmpl-wpbm-toolbars.php:669
+msgid "ID"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:292 core/admin/wpbm-dashboard.php:234
+msgid "Version"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:293
+msgid "Desciption"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:294
+msgid "Path"
+msgstr ""
+
+#: core/admin/exmpl-page-files-sortable.php:320 core/admin/exmpl-page-files-sortable.php:335
+#: core/admin/exmpl-wpbm-toolbars.php:959
+msgid "Delete"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:33 core/admin/page-root-ics.php:33
+msgid "Manage .ics"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:34 core/admin/page-root-ics.php:34
+msgid "Upload .ics File"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:35 core/admin/page-root-ics.php:35
+#: core/admin/wpbm-toolbar-tiny.php:476
+msgid "Booking Manager"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:66
+msgid "Listing Shortcode"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:71
+msgid "Import Shortcode"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:129 core/admin/page-settings-listing.php:117
+msgid "Listing"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:348 core/admin/page-settings-listing.php:348
+msgid "Select"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:348 core/admin/page-settings-listing.php:348
+msgid "Form Template"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:361 core/admin/page-settings-listing.php:361
+msgid "Standard Templates"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:364 core/admin/page-settings-listing.php:364
+msgid "Standard"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:416 core/admin/exmpl-page-help-shortcodes.php:455
+#: core/admin/page-settings-listing.php:416 core/admin/page-settings-listing.php:455
+msgid "Reset Form"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:454 core/admin/page-settings-listing.php:454
+msgid "Reset"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:510 core/admin/page-settings-listing.php:510
+msgid "Use these shortcodes for customization: "
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:513 core/admin/page-settings-listing.php:513
+#, php-format
+msgid "%s - date(s) of event"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:516 core/admin/page-settings-listing.php:516
+#, php-format
+msgid "%s - summary info of event"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:519 core/admin/page-settings-listing.php:519
+#, php-format
+msgid "%s - ID of event"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:522 core/admin/page-settings-listing.php:522
+#, php-format
+msgid "%s - description of event"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:525 core/admin/page-settings-listing.php:525
+#, php-format
+msgid "%s - date of event editing, creation"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:528 core/admin/page-settings-listing.php:528
+#, php-format
+msgid "%s - location of event"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:532 core/admin/page-settings-listing.php:532
+#, php-format
+msgid "%s - inserting new line"
+msgstr ""
+
+#: core/admin/exmpl-page-help-shortcodes.php:536 core/admin/page-settings-listing.php:536
+#, php-format
+msgid ""
+"You can use any %sHTML tags%s in the booking form. Please use the HTML tags carefully. Be sure, "
+"that all \"open\" tags (like %s) are closed (like this %s)."
+msgstr ""
+
+#: core/admin/exmpl-page-with-toolbars-listing.php:34
+#: core/admin/exmpl-page-with-toolbars-listing.php:35
+#: core/admin/exmpl-page-with-toolbars-listing.php:36 core/admin/exmpl-wpbm-toolbars.php:398
+msgid "Item Listing"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:101
+msgid "Nothing Found"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:123
+msgid "Labels"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:127
+msgid "Item Data"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:128
+msgid "Item Dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:131
+msgid "Show ALL dates of item"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:137
+msgid "Show only check in/out dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:222
+msgid "Default"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:237
+msgid "Resource not exist"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:263
+msgid "Paid OK"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:267
+msgid "Unknown"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:316
+msgid "New item"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:343 core/admin/exmpl-wpbm-toolbars.php:480
+msgid "Pending"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:344 core/admin/exmpl-wpbm-toolbars.php:481
+msgid "Approved"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:346 core/admin/exmpl-wpbm-toolbars.php:925
+msgid "Trash"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:405 core/admin/exmpl-wpbm-class-listing.php:411
+#: core/admin/exmpl-wpbm-toolbars.php:928 core/admin/exmpl-wpbm-toolbars.php:945
+msgid "Do you really want to do this ?"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:407
+msgid "Move to trash"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:413 core/admin/exmpl-wpbm-toolbars.php:942
+msgid "Restore"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:417
+msgid "Do you really want to delete this item ?"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:419
+msgid "Completely Delete"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:428 core/admin/exmpl-wpbm-toolbars.php:880
+msgid "Approve"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:433 core/admin/exmpl-wpbm-toolbars.php:898
+msgid "Do you really want to set item as pending ?"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:435 core/admin/exmpl-wpbm-toolbars.php:895
+msgid "Reject"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-class-listing.php:444
+msgid "Created"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:49
+msgid "Filters"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:178
+msgid "Options"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:284
+msgid "Expand Advanced Toolbar"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:291
+msgid "Collapse Advanced Toolbar"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:309
+msgid "Send email notification to customer after approval, cancellation or deletion of items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:310
+msgid "Emails sending"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:335
+msgid "Item ID"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:338 core/admin/exmpl-wpbm-toolbars.php:1402
+msgid "Go"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:368
+msgid "About Booking Manager"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:371
+msgid "FAQ"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:372 core/admin/page-root-ics.php:109
+msgid "Technical Support"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:374 core/admin/page-root-ics.php:111
+msgid "Upgrade Now"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:413
+msgid "Calendar Overview"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:442 core/admin/exmpl-wpbm-toolbars.php:622
+#: core/admin/exmpl-wpbm-toolbars.php:827
+msgid "Apply"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:443
+msgid "Refresh item listing"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:457
+msgid "Reset filter to default values"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:483 core/admin/exmpl-wpbm-toolbars.php:698
+msgid "Any"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:487 core/admin/exmpl-wpbm-toolbars.php:702
+msgid "Items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:498 core/admin/exmpl-wpbm-toolbars.php:732
+msgid "day"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:499 core/admin/exmpl-wpbm-toolbars.php:500
+#: core/admin/exmpl-wpbm-toolbars.php:501 core/admin/exmpl-wpbm-toolbars.php:502
+#: core/admin/exmpl-wpbm-toolbars.php:503 core/admin/exmpl-wpbm-toolbars.php:733
+#: core/admin/exmpl-wpbm-toolbars.php:734 core/admin/exmpl-wpbm-toolbars.php:735
+#: core/admin/exmpl-wpbm-toolbars.php:736 core/admin/exmpl-wpbm-toolbars.php:737
+#: core/admin/wpbm-toolbar-tiny.php:658 core/admin/wpbm-toolbar-tiny.php:755
+#: core/admin/wpbm-toolbar-tiny.php:1106 core/admin/wpbm-toolbar-tiny.php:1203
+msgid "days"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:504 core/admin/exmpl-wpbm-toolbars.php:738
+msgid "week"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:505 core/admin/exmpl-wpbm-toolbars.php:739
+msgid "weeks"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:506 core/admin/exmpl-wpbm-toolbars.php:740
+msgid "month"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:507 core/admin/exmpl-wpbm-toolbars.php:508
+#: core/admin/exmpl-wpbm-toolbars.php:509 core/admin/exmpl-wpbm-toolbars.php:741
+#: core/admin/exmpl-wpbm-toolbars.php:742 core/admin/exmpl-wpbm-toolbars.php:743
+msgid "months"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:510 core/admin/exmpl-wpbm-toolbars.php:744
+msgid "Year"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:517 core/admin/exmpl-wpbm-toolbars.php:752
+msgid "Filter items by item dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:519 core/admin/exmpl-wpbm-toolbars.php:581
+#: core/admin/exmpl-wpbm-toolbars.php:667 core/admin/exmpl-wpbm-toolbars.php:670
+#: core/admin/exmpl-wpbm-toolbars.php:786
+msgid "Dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:521
+msgid "Current dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:522 core/admin/exmpl-wpbm-toolbars.php:756
+msgid "Today"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:523
+msgid "Previous dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:524 core/admin/exmpl-wpbm-toolbars.php:757
+msgid "All dates"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:526
+msgid "Today check in/out"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:527
+msgid "Check In - Tomorrow"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:528
+msgid "Check Out - Tomorrow"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:533 core/wpbm-functions.php:1983
+msgid "Next"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:557 core/admin/exmpl-wpbm-toolbars.php:762
+msgid "Prior"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:597 core/admin/exmpl-wpbm-toolbars.php:802
+msgid "Check-in"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:609 core/admin/exmpl-wpbm-toolbars.php:814
+msgid "Check-out"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:641 core/admin/exmpl-wpbm-toolbars.php:846
+#: core/admin/wpbm-toolbar-tiny.php:283 core/any/wpbm-class-dismiss.php:172
+msgid "Close"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:681
+msgid "Order by"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:695
+msgid "Exist"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:696
+msgid "In Trash"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:716
+msgid "All items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:717
+msgid "New items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:721
+msgid "Show"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:754
+msgid "Creation"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:881
+msgid "Approve selected items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:896
+msgid "Set selected items as pending"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:926
+msgid "Move selected items to trash"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:943
+msgid "Restore selected items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:960
+msgid "Delete selected items"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:962
+msgid "Do you really want to delete selected item(s) ?"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:978
+msgid "Reason of cancellation"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1024
+msgid "Visible months"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1071
+msgid "Number of months in one row"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1072
+msgid "All"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1116
+msgid "Calendar width"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1164
+msgid "Calendar cell height"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1253 core/admin/exmpl-wpbm-toolbars.php:1254
+msgid "Send email notification to customer about this operation"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1292
+msgid "Total"
+msgstr ""
+
+#: core/admin/exmpl-wpbm-toolbars.php:1398
+msgid "ID or Title"
+msgstr ""
+
+#: core/admin/page-root-ics.php:103
+msgid "Shortcode configuration"
+msgstr ""
+
+#: core/admin/page-root-ics.php:151
+msgid "Upload .ics file and show events"
+msgstr ""
+
+#: core/admin/page-root-ics.php:178
+#, php-format
+msgid ""
+".ics - is a file format of iCalendar standard for exchanging calendar and scheduling information "
+"between different sources %s Using a common calendar format (.ics), you can keep all your "
+"calendars updated and synchronized."
+msgstr ""
+
+#: core/admin/page-root-ics.php:187 core/any/wpbm-class-notices.php:302
+msgid "and any other calendar that uses .ics format"
+msgstr ""
+
+#: core/admin/page-root-ics.php:203
+msgid "Log"
+msgstr ""
+
+#: core/admin/page-root-ics.php:244 core/admin/page-root-ics.php:413
+msgid "Done"
+msgstr ""
+
+#: core/admin/page-root-ics.php:282
+msgid "URL to .ics feed"
+msgstr ""
+
+#: core/admin/page-root-ics.php:287
+msgid "Choose file"
+msgstr ""
+
+#: core/admin/page-root-ics.php:288
+msgid "Insert file URL"
+msgstr ""
+
+#: core/admin/page-root-ics.php:289
+msgid "Upload / Select "
+msgstr ""
+
+#: core/admin/page-root-ics.php:291
+msgid "Show Events (.ics)"
+msgstr ""
+
+#: core/admin/page-root-ics.php:457 core/wpbc/wpbm-bc-import.php:97
+msgid "No ics url feed"
+msgstr ""
+
+#: core/admin/page-root-ics.php:480
+msgid "Insert this shortcode into page for showing these events at front-end side of your website."
+msgstr ""
+
+#: core/admin/page-settings-listing.php:33 core/admin/page-settings-listing.php:34
+#: core/admin/page-settings-listing.php:35 core/admin/page-settings.php:47
+#: core/admin/page-settings.php:48 core/admin/page-settings.php:49 core/wpbm-activation.php:39
+#: core/wpbm-functions.php:958 core/wpbm.php:156 core/wpbm.php:158 core/wpbm.php:289
+msgid "Settings"
+msgstr ""
+
+#: core/admin/page-settings-listing.php:51 core/admin/page-settings-listing.php:52
+#: core/admin/page-settings-listing.php:53
+msgid "Listing Template"
+msgstr ""
+
+#: core/admin/page-settings-listing.php:137
+msgid "Event template - row for event listing"
+msgstr ""
+
+#: core/admin/page-settings.php:92 core/admin/page-settings.php:93 core/admin/page-settings.php:94
+#: core/wpbm.php:157
+msgid "General Settings"
+msgstr ""
+
+#: core/admin/page-settings.php:152
+msgid "Misc"
+msgstr ""
+
+#: core/admin/page-settings.php:156 core/admin/page-settings.php:194
+msgid "Plugin Menu"
+msgstr ""
+
+#: core/admin/page-settings.php:159
+msgid "Uninstall"
+msgstr ""
+
+#: core/admin/page-settings.php:162 core/admin/page-settings.php:219
+msgid "Advanced"
+msgstr ""
+
+#: core/admin/page-settings.php:187
+msgid "Miscellaneous"
+msgstr ""
+
+#: core/admin/page-settings.php:201
+msgid "Uninstall / deactivation"
+msgstr ""
+
+#: core/admin/page-settings.php:210
+msgid "Information"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:35
+msgid "Item Calendar"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:204
+msgid "Support"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:207
+msgid "Help Info"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:210
+msgid "Contact Support"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:214
+#, php-format
+msgid "%sNew feature suggestion%s"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:231
+msgid "Current version"
+msgstr ""
+
+#: core/admin/wpbm-dashboard.php:249
+msgid "Release date"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:36 core/admin/wpbm-toolbar-tiny.php:37
+#: core/admin/wpbm-toolbar-tiny.php:218
+msgid "Insert Shortcode"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:283
+msgid "Insert into page"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:475
+msgid "Booking Manager Shortcodes"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:506
+msgid "parent resource"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:539
+msgid "Listing .ics feed"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:542
+msgid "Import .ics feed into"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:564 core/admin/wpbm-toolbar-tiny.php:962
+msgid "URL"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:565 core/admin/wpbm-toolbar-tiny.php:963
+msgid "URL to .ics feed or file"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:591 core/admin/wpbm-toolbar-tiny.php:688
+#: core/admin/wpbm-toolbar-tiny.php:1039 core/admin/wpbm-toolbar-tiny.php:1136
+msgid "Now"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:592 core/admin/wpbm-toolbar-tiny.php:689
+#: core/admin/wpbm-toolbar-tiny.php:1040 core/admin/wpbm-toolbar-tiny.php:1137
+msgid "00:00 Today"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:593 core/admin/wpbm-toolbar-tiny.php:690
+#: core/admin/wpbm-toolbar-tiny.php:1041 core/admin/wpbm-toolbar-tiny.php:1138
+msgid "Start of current week"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:594 core/admin/wpbm-toolbar-tiny.php:691
+#: core/admin/wpbm-toolbar-tiny.php:1042 core/admin/wpbm-toolbar-tiny.php:1139
+msgid "Start of current month"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:595 core/admin/wpbm-toolbar-tiny.php:692
+#: core/admin/wpbm-toolbar-tiny.php:1043 core/admin/wpbm-toolbar-tiny.php:1140
+msgid "End of current month"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:596 core/admin/wpbm-toolbar-tiny.php:1044
+msgid "Start of current year"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:597 core/admin/wpbm-toolbar-tiny.php:1045
+msgid "The start of time"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:598 core/admin/wpbm-toolbar-tiny.php:695
+#: core/admin/wpbm-toolbar-tiny.php:1046 core/admin/wpbm-toolbar-tiny.php:1143
+msgid "Specific date / time"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:621 core/admin/wpbm-toolbar-tiny.php:630
+#: core/admin/wpbm-toolbar-tiny.php:718 core/admin/wpbm-toolbar-tiny.php:727
+#: core/admin/wpbm-toolbar-tiny.php:1069 core/admin/wpbm-toolbar-tiny.php:1078
+#: core/admin/wpbm-toolbar-tiny.php:1166 core/admin/wpbm-toolbar-tiny.php:1175
+msgid "Offset"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:624 core/admin/wpbm-toolbar-tiny.php:721
+#: core/admin/wpbm-toolbar-tiny.php:1072 core/admin/wpbm-toolbar-tiny.php:1169
+msgid "Date"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:659 core/admin/wpbm-toolbar-tiny.php:756
+#: core/admin/wpbm-toolbar-tiny.php:1107 core/admin/wpbm-toolbar-tiny.php:1204
+msgid "hours"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:660 core/admin/wpbm-toolbar-tiny.php:757
+#: core/admin/wpbm-toolbar-tiny.php:1108 core/admin/wpbm-toolbar-tiny.php:1205
+msgid "minutes"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:661 core/admin/wpbm-toolbar-tiny.php:758
+#: core/admin/wpbm-toolbar-tiny.php:1109 core/admin/wpbm-toolbar-tiny.php:1206
+msgid "seconds"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:666 core/admin/wpbm-toolbar-tiny.php:1114
+msgid "You can specify an optional offset from you chosen start point. The offset can be negative."
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:668 core/admin/wpbm-toolbar-tiny.php:765
+#: core/admin/wpbm-toolbar-tiny.php:1116 core/admin/wpbm-toolbar-tiny.php:1213
+#, php-format
+msgid "Type your date in format %s. Example: %s"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:682 core/admin/wpbm-toolbar-tiny.php:701
+#: core/admin/wpbm-toolbar-tiny.php:1130 core/admin/wpbm-toolbar-tiny.php:1149
+msgid "Until"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:693 core/admin/wpbm-toolbar-tiny.php:1141
+msgid "End of current year"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:694 core/admin/wpbm-toolbar-tiny.php:1142
+msgid "The end of time"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:763 core/admin/wpbm-toolbar-tiny.php:1211
+msgid "You can specify an optional offset from you chosen end point. The offset can be negative."
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:776 core/admin/wpbm-toolbar-tiny.php:1224
+msgid "Maximum number"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:777 core/admin/wpbm-toolbar-tiny.php:1225
+msgid "You can specify the maximum number of events."
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:984
+msgid "Booking resource"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:985
+msgid "Select booking resource, where event will be imported"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:1007
+msgid "Import condition"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:1008
+msgid "Whether import events for dates, that already booked in specific booking resource"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:1020
+msgid "Import in any case"
+msgstr ""
+
+#: core/admin/wpbm-toolbar-tiny.php:1021
+msgid "Import only, if days are available"
+msgstr ""
+
+#: core/any/class-admin-page-structure.php:607 core/wpbm-debug.php:119 core/wpbm-emails.php:194
+#: core/wpbm.php:276
+msgid "Error"
+msgstr ""
+
+#: core/any/class-admin-page-structure.php:607
+msgid "Form"
+msgstr ""
+
+#: core/any/class-admin-page-structure.php:607
+msgid "does not exist"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:53 core/wpbm-activation.php:30
+msgid "Warning!"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:54
+#, php-format
+msgid ""
+"Probabaly you updated your paid version of Booking Manager by free version or update process "
+"failed. You can request the new update of your paid version at %1sthis page%2s."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:250
+msgid "List events or bookings from different sources at your website with easy via .ics feeds"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:256
+msgid "How to start showing events from .ics feeds (files)?"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:260
+msgid "Upload .ics file via this page or simply copy URL to .ics feed from external website."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:265
+msgid "Insert into page the shortcode for listing events from .ics feed."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:267
+#, php-format
+msgid "Read more about %sshortcode configuration here%s."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:272
+msgid "Next Steps"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:275
+#, php-format
+msgid "Configure different options in %sSettings%s."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:279
+#, php-format
+msgid "Configure your predefined %sEvents Listing Template%s."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:285
+msgid "Integartion with"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:288
+#, php-format
+msgid "This plugin have native integration with %s plugin."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:292
+#, php-format
+msgid "It can sync bookings from %s with different sources"
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:310
+#, php-format
+msgid "Still having questions? Contact %sSupport%s."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:314
+#, php-format
+msgid "Do you require new feature? Send your %ssuggestion%s to us."
+msgstr ""
+
+#: core/any/wpbm-class-notices.php:318
+#, php-format
+msgid "Need even more functionality? Check %s higher versions %s"
+msgstr ""
+
+#: core/wpbc/wpbm-bc-import.php:119
+#, php-format
+msgid ".ics feed contain %s events at URL %s"
+msgstr ""
+
+#: core/wpbc/wpbm-bc-import.php:145
+msgid "No any new events to import! These events was import previously, already."
+msgstr ""
+
+#: core/wpbc/wpbm-bc-import.php:169
+#, php-format
+msgid "Imported of %s bookings"
+msgstr ""
+
+#: core/wpbm-activation.php:31
+msgid "All plugin data will be deleted when the plugin is deactivated."
+msgstr ""
+
+#: core/wpbm-activation.php:33
+#, php-format
+msgid "If you want to save your plugin data, please uncheck the %s\"Delete data\"%s at the"
+msgstr ""
+
+#: core/wpbm-activation.php:36
+msgid "settings page"
+msgstr ""
+
+#: core/wpbm-ajax.php:32
+#, php-format
+msgid ""
+"%sError!%s Request do not pass security check! Please refresh the page and try one more time."
+msgstr ""
+
+#: core/wpbm-ajax.php:115
+msgid "Saved"
+msgstr ""
+
+#: core/wpbm-functions.php:982
+#, php-format
+msgid "If you like %s please leave us a %s rating. A huge thank you in advance!"
+msgstr ""
+
+#: core/wpbm-functions.php:1550
+msgid "Changes saved."
+msgstr ""
+
+#: core/wpbm-functions.php:1599
+msgid "Hide"
+msgstr ""
+
+#: core/wpbm-functions.php:1656
+msgid "Click to toggle"
+msgstr ""
+
+#: core/wpbm-functions.php:1950
+msgid "Prev"
+msgstr ""
+
+#: core/wpbm-ics-listing.php:74
+msgid "No URL for .ics feed."
+msgstr ""
+
+#: core/wpbm-ics.php:58
+msgid "Could not download URL"
+msgstr ""
+
+#: core/wpbm-ics.php:106
+msgid "File does not contain events"
+msgstr ""
+
+#: core/wpbm-js.php:95
+msgid "This field is required"
+msgstr ""
+
+#: core/wpbm-js.php:96
+msgid "This checkbox must be checked"
+msgstr ""
+
+#: core/wpbm-js.php:97
+msgid "At least one option must be selected"
+msgstr ""
+
+#: core/wpbm-js.php:98
+msgid "Incorrect email field"
+msgstr ""
+
+#: core/wpbm-js.php:99
+msgid "Your emails do not match"
+msgstr ""
+
+#: core/wpbm-js.php:102
+msgid "Processing"
+msgstr ""
+
+#: core/wpbm-js.php:103
+msgid "Deleting"
+msgstr ""
+
+#: core/wpbm-js.php:104
+msgid "Updating"
+msgstr ""
+
+#: core/wpbm-js.php:105
+msgid "Saving"
+msgstr ""
+
+#: core/wpbm.php:116
+msgid "Manage"
+msgstr ""
+
+#: core/wpbm.php:118
+msgid "Manage Data"
+msgstr ""
+
+#: core/wpbm.php:238 core/wpbm.php:245
+msgid "Action is not allowed!"
+msgstr ""
+
+#: core/wpbm.php:277
+msgid "Please deactivate previous old version of"
+msgstr ""

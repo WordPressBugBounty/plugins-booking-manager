@@ -1,0 +1,19 @@
+Libs:
+Bootstrap v3.3.5 (CSS, JS files): Code licensed under MIT,  which  is compatible with GPLv2 . More here https://wordpress.org/support/topic/mit-license-in-wordpress-plugins?replies=10#post-5824280
+(The full Bootstrap license is located https://github.com/twbs/bootstrap/blob/master/LICENSE )
+
+
+Fonts:
+License for GLYPHICONS Halflings in Bootstrap
+GLYPHICONS Halflings font is also released as an extension of a Bootstrap www.getbootstrap.com for free and it is released under the same license as Bootstrap.  ( http://glyphicons.com/license/ ) Jan Kovařík
+
+
+----------------------------------------------------------------------------------------------
+These components have not used, but its possible to use in a future. Just as reference here. 
+----------------------------------------------------------------------------------------------
+Font Awesome 3.2.1: /http://fontawesome.io/ The Font Awesome font is licensed under SIL OFL 1.1 ( http://scripts.sil.org/OFL ). Font Awesome CSS, LESS, and SASS files are licensed under MIT License ( http://opensource.org/licenses/mit-license.html )
+
+Icons: 
+icon-64x64.png, icon-64x64.png: Icons from the 'Gnome Web Icons' icon set, published under the GPL (https://www.iconfinder.com/icons/55598/64_downloads_emblem_gnome_icon, http://art.gnome.org/themes/icon)
+
+( https://www.iconfinder.com/icons/473776/business_communication_consulting_customer_service_support_talk_icon#size=128 )
