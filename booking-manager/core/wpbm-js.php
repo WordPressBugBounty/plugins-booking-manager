@@ -95,7 +95,7 @@ function wpbm_js_load_vars( $where_to_load ) {
         , 'message_verif_requred'               => esc_js(__('This field is required' , 'booking-manager'))
         , 'message_verif_requred_for_check_box' => esc_js(__('This checkbox must be checked' , 'booking-manager'))
         , 'message_verif_requred_for_radio_box' => esc_js(__('At least one option must be selected' , 'booking-manager'))
-        , 'message_verif_emeil'                 => esc_js(__('Incorrect email field' , 'booking-manager'))
+        , 'message_verif_emeil'                 => esc_js(__('Incorrect email address' , 'booking-manager'))
         , 'message_verif_same_emeil'            => esc_js(__('Your emails do not match' , 'booking-manager'))          // Email Addresses Do Not Match
                           
         , 'wpbm_active_locale'                  => wpbm_get_locale()  

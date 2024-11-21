@@ -4,8 +4,8 @@ Donate link: https://oplugins.com/plugins/booking-manager
 Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
-Tested up to: 6.6
-Stable tag: 2.1.9
+Tested up to: 6.7
+Stable tag: 2.1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,9 +134,13 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.10 =
+* **Fix** Correctly import of full day events, which contains of several not consecutive dates into the Google Calendar (2.1.10.1)
+
 = 2.1.9 =
 * **Under hood** Added FBTYPE:BUSY for all exported bookings in .ics feeds. Purpose of this property to specify the free or busy time type. Some external  servers does not mark  the bookings as unavailable without this property (2.1.9.1)
 * Fix Added removed empty spaces in .ics feed at  the beginning and end of the .ics feed,  which  can be reason  of  PHP Fatal error:  Uncaught Error: Call to a member function getName() on null in ../booking-manager/assets/libs/icalendar/includes/ical.php:461 ... (2.1.9.2)
+
 = 2.1.8 =
 * **Under hood** Prevent of execution shortcodes, while editing the post/page. Instead of that show Sketchup block. It's reduce potential conflict  issues and improve speed of such  edit page. (9.9.0.39)
 

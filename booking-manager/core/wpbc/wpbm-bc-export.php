@@ -397,17 +397,22 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 				} else {
 					$bk_date = wpbm_get_only_date_if_it_full_date( $bk_date );
 				}
-				
-				$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
+
+				if(strlen($bk_date) > 10){
+					// Date with Time
+					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
+				} else {
+					// Only Full Dates      //FixIn: 2.1.10.1
+					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
+					$rdate[] = '/';
+					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
+				}
 
 			} else if ( ( $bk_date === '-' ) && ( count($rdate) > 0 ) ) {
-				
 				$rdate[] = '/';				// PERIOD
-				
+
 			} else if ( ( $bk_date === ',' ) && ( count($rdate) > 0 ) ) {
-				
 				$rdate[] = ',';				// Other date
-				
 			}
 			$previos_value = $bk_date;
 		}
