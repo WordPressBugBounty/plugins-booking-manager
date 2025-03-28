@@ -27,16 +27,12 @@ class WPBM_ItemInstall extends WPBM_Install {
                 , 'option-is_delete_if_deactive'        => 'wpbm_is_delete_if_deactive'
                 , 'option-activation_process'           => 'wpbm_activation_process'
                 , 'transient-wpbm_activation_redirect'  => '_wpbm_activation_redirect'
-                , 'message-delete_data'                 =>  '<strong>' . __('Warning!', 'booking-manager') . '</strong> '
-                                                            . __('All plugin data will be deleted when the plugin is deactivated.', 'booking-manager') 
-                                                            . '<br />'
-                                                            . sprintf( __('If you want to save your plugin data, please uncheck the %s"Delete data"%s at the' , 'booking-manager')
-                                                                       , '<strong>', '</strong>') 
+                , 'message-delete_data'                 =>  '<strong>Warning!</strong> All plugin data will be deleted when the plugin is deactivated.<br />' .
+															sprintf( 'If you want to save your plugin data, please uncheck the %s"Delete data"%s at the', '<strong>', '</strong>' )
                                                             . '<a href="' . esc_url( admin_url( add_query_arg( array( 'page' => 'oplugins', 'tab' => 'wpbm-settings' ), 'admin.php' ) ) ) 
-                                                                     . '#wpbm_general_settings_uninstall_metabox"> ' .  __('settings page', 'booking-manager') . '.' 
-                                                            . ' </a>'
+															 . '#wpbm_general_settings_uninstall_metabox"> settings page. </a>'
                 , 'link_settings'                       => '<a href="' . esc_url( admin_url( add_query_arg( array( 'page' => 'oplugins', 'tab' => 'wpbm-settings' ), 'admin.php' ) ) ) 
-                                                                       . '">'.__("Settings", 'booking-manager').'</a>'
+                                                                       . '">Settings</a>' //FixIn: 2025-03-28
                 , 'link_whats_new'                      => ''
         );                
         

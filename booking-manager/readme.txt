@@ -4,8 +4,8 @@ Donate link: https://oplugins.com/plugins/booking-manager
 Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
-Tested up to: 6.7
-Stable tag: 2.1.10
+Tested up to: 6.8
+Stable tag: 2.1.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.11 =
+* **Fix** Notice: Function _load_textdomain_just_in_time was called incorrectly. (2025-03-28)
+
 = 2.1.10 =
 * **Fix** Correctly import of full day events, which contains of several not consecutive dates into the Google Calendar (2.1.10.1)
 
