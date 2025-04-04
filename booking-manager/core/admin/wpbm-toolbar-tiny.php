@@ -33,8 +33,8 @@ class WPBM_TinyMCE_Buttons {
 							, 'pages_where_insert'  => array( 'post-new.php', 'page-new.php', 'post.php', 'page.php' )
 							, 'buttons'             => array(
 																'wpbm_insert' => array(
-																						'hint'  => __('Insert Shortcode' , 'booking-manager' )
-																					  , 'title' => __('Insert Shortcode' , 'booking-manager' )
+																						'hint'  => 'Insert Shortcode'   // FixIn: 2025-04-04.
+																					  , 'title' => 'Insert Shortcode'
 																					  , 'js_func_name_click'    => 'wpbm_tiny_btn_click'
 																					  , 'img'   => WPBM_PLUGIN_URL . '/assets/img/icon-16x16.png'
 																				  )
@@ -473,8 +473,8 @@ if ( in_array( basename($_SERVER['PHP_SELF'] ),  $wpbm_pages_where_insert_btn ) 
                                     , 'pages_where_insert' => $wpbm_pages_where_insert_btn
                                     , 'buttons'            => array(
                                                                 'wpbm_insert' => array(
-                                                                                              'hint'  => __('Booking Manager Shortcodes' , 'booking-manager' )
-                                                                                            , 'title' => __('Booking Manager' , 'booking-manager' )
+                                                                                              'hint'  => 'Booking Manager Shortcodes'
+                                                                                            , 'title' => 'Booking Manager'
                                                                                             , 'js_func_name_click'    => 'wpbm_tiny_btn_click'
                                                                                             , 'img'   => WPBM_PLUGIN_URL . '/assets/img/icon-16x16.png'
                                                                                         )

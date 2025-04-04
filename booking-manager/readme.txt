@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 2.1.11
+Stable tag: 2.1.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,10 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.12 =
+* New: Added option "Export only full days (not time)" on "oPlugins Panel > Settings General", to export only full days without time to the .ics feed. This is a limitation in Airbnb and some other services. (2.1.12.1)
+* **Fix** Notice: Function _load_textdomain_just_in_time was called incorrectly. (2025-04-04)
+
 = 2.1.11 =
 * **Fix** Notice: Function _load_textdomain_just_in_time was called incorrectly. (2025-03-28)
 

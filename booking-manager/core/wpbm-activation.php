@@ -177,10 +177,11 @@ function wpbm_get_default_options( $option_name = '' ) {
 	//$default_options[ 'wpbm_user_role_addnew' ] = ( $is_demo ) ? 'subscriber' : 'editor';
 	//$default_options[ 'wpbm_user_role_settings' ] = ( $is_demo ) ? 'subscriber' : 'editor';
 	// Position
-	
-	// Uninstall
-	$default_options[ 'wpbm_is_delete_if_deactive' ] = ($is_demo) ? 'On' : 'Off';
-	$default_options[ 'wpbm_is_hide_details' ] = 'Off';     //FixIn: 2.0.12.3
+
+	// Uninstall.
+	$default_options['wpbm_is_delete_if_deactive']    = ( $is_demo ) ? 'On' : 'Off';
+	$default_options['wpbm_is_hide_details']          = 'Off';                // FixIn: 2.0.12.3.
+	$default_options['wpbm_is_export_only_full_days'] = 'Off';                // FixIn: 2.1.12.1.
 
 	$default_options[ 'wpbm_listing_template' ] = 
 		'<div class="wpbm-event">' . "\n"

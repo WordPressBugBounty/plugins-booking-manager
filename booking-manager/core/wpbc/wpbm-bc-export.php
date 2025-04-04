@@ -369,7 +369,16 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 
 			$period_start_index = 1;
 		}
-		
+
+		//FixIn: 2.1.12.1
+		if ( 'On' === get_wpbm_option( 'wpbm_is_export_only_full_days' ) ) {
+			$event_start = substr( $event_start, 0, 10 );
+			$event_end   = substr( $event_end, 0, 10 );
+			if ( $event_start === $event_end ) {
+				$event_end = gmdate( "Y-m-d", strtotime( "+1 day", strtotime( $event_end ) ) );
+			}
+		}
+
 		// add start date
 		$eventobj->addNode( new ZCiCalDataNode( "DTSTART:" . ZCiCal::fromSqlDateTime( $event_start ) ) );
 

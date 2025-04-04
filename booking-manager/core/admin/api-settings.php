@@ -67,6 +67,16 @@ class  WPBM_Settings_API_General extends WPBM_Settings_API {
                             , 'group'       => 'wpbm_listing'
         );
 
+		//FixIn: 2.1.12.1
+		$this->fields['wpbm_is_export_only_full_days'] = array(
+                            'type'          => 'checkbox'
+                            , 'default'     => $default_options_values['wpbm_is_export_only_full_days']         //'Off'
+                            , 'title'       => __('Export only full days (not time)' , 'booking-manager')
+                            , 'label'       => __('Check this box to export only full days without time to the .ics feed. This is a limitation in Airbnb and some other services.' , 'booking-manager')
+                            , 'description' => ''
+                            , 'group'       => 'wpbm_listing'
+        );
+
 
         $this->fields['wpbm_start_day_weeek'] = array(   
                                     'type'          => 'select'
