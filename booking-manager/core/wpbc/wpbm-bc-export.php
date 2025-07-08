@@ -226,8 +226,7 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 	}
 
 
-
-	$_REQUEST['view_mode']= 'vm_calendar';      //FixIn: 8.5.2.15       2.0.11.2
+	$_REQUEST['tab'] = 'vm_calendar';           // FixIn: 10.12.3.2.   //FixIn: 8.5.2.15       2.0.11.2
 	// Get array of bookings.
 	$bookings_arr = wpbc_api_get_bookings_arr( $param );
 

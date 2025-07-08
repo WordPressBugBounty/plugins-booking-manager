@@ -205,7 +205,7 @@ function wpbm_ics_get_listing_row( $evnt ) {
 		//FixIn: 2.0.11.5
 		$replace_array['BOOKING_LINK'] = htmlspecialchars_decode(
 																	//    '<a href="' .
-																	esc_url( wpbc_get_bookings_url() . '&view_mode=vm_listing&tab=actions&wh_booking_id=' . $my_booking_id )
+																	esc_url( wpbc_get_bookings_url() . '&tab=vm_booking_listing&wh_booking_id=' . $my_booking_id )
 																	//    . '">' . __('here', 'booking') . '</a>'
 		);
 	}
