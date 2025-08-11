@@ -150,7 +150,7 @@ function wpbm_make_export_ics_feeds(){
 		// Set Headers before file download 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		$file = array();
-		$file['content_type'] = 'text/calendar';
+		$file['content_type'] = 'text/calendar; charset=UTF-8';
 		$file['name'] = 'wpbm.ics';
 
 		if ( function_exists( 'mb_detect_encoding' ) )                      //FixIn: 2.0.5.3
@@ -173,7 +173,7 @@ function wpbm_make_export_ics_feeds(){
 		@header( $_SERVER[ 'SERVER_PROTOCOL' ] . ' 200 OK' . "\n" );
 		header( "Content-Type: " . $file['content_type'] . "\n" );
 		header( "Content-Description: File Transfer" . "\n" );
-		header( "Content-Disposition: attachment; filename=\"" . $file['name'] . "\"" . "\n" );
+		header( "Content-Disposition: inline; filename=\"" . $file['name'] . "\"" . "\n" );
 		header( "Content-Transfer-Encoding: binary" . "\n" );
 
 		if ( (int) $file['size'] > 0 )
@@ -191,325 +191,482 @@ function wpbm_make_export_ics_feeds(){
 add_action( 'template_redirect', 'wpbm_make_export_ics_feeds' );
 
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Helpers for ICS export:
+// ---------------------------------------------------------------------------------------------------------------------
 
-/** Define export ICS here  
- *  For testing: http://beta/?feed=wpbm-ics
+/**
+ * Escape ICS text per RFC 5545: backslash, comma, semicolon; newlines -> \n
+ *
+ * @param string $text
+ *
+ * @return string
  */
-function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1', 'wh_trash' => '' ) ) {               //FixIn: 2.0.2.3
+function wpbc_ics_escape_text( $text ) {
+	$text = (string) $text;
+	$text = str_replace( array( "\\", ";", "," ), array( "\\\\", "\;", "\," ), $text );
+	$text = str_replace( array( "\r\n", "\r" ), "\n", $text );
+	$text = str_replace( "\n", "\\n", $text ); // single backslash-n.
 
-	if ( ! function_exists( 'wpbc_api_get_bookings_arr' ) )
-		return '';
+	return $text;
+}
 
-//	// Start date of getting bookings
-//	$real_date = strtotime( '-1 year' );
-//	$wh_booking_date = date_i18n( "Y-m-d", $real_date );
-//	$param['wh_booking_date'] = $wh_booking_date;
-	// End date of getting bookings
-	$real_date = strtotime( '+2 years' );                           //FixIn: 2.0.7.1
-	$wh_booking_date2 = date_i18n( "Y-m-d", $real_date );
-	$param['wh_booking_date2' ] = $wh_booking_date2;
+/**
+ * Format SQL local datetime ("Y-m-d H:i:s") as UTC Z iCal (YYYYMMDDTHHMMSSZ).
+ *
+ * @param string|null  $sql_dt Local SQL datetime or null for "now"
+ * @param DateTimeZone $source_tz
+ *
+ * @return string
+ */
+function wpbc_to_ics_utc( $sql_dt, DateTimeZone $source_tz ) {
+	$dt = $sql_dt ? DateTime::createFromFormat( 'Y-m-d H:i:s', $sql_dt, $source_tz )
+		: new DateTime( 'now', $source_tz );
+	if ( ! $dt ) {
+		$dt = new DateTime( 'now', $source_tz );
+	}
+	$dt->setTimezone( new DateTimeZone( 'UTC' ) );
 
-	// Export only approved bookings                                //FixIn: 2.0.11.1   //FixIn: 8.5.2.3
-	$booking_is_ics_export_only_approved = get_bk_option( 'booking_is_ics_export_only_approved' );
-	if ( 'On' == $booking_is_ics_export_only_approved ) {
-		$param['wh_approved'] = '1';
-	} else {
-		$param['wh_approved'] = '';
+	return $dt->format( 'Ymd\THis\Z' );
+}
+
+/**
+ * Format SQL local datetime as local (no Z) in iCal basic (YYYYMMDDTHHMMSS).
+ *
+ * @param string       $sql_dt
+ * @param DateTimeZone $tz
+ *
+ * @return string
+ */
+function wpbc_to_ics_local( $sql_dt, DateTimeZone $tz ) {
+	$dt = DateTime::createFromFormat( 'Y-m-d H:i:s', $sql_dt, $tz );
+	if ( ! $dt ) {
+		$dt = new DateTime( $sql_dt ?: 'now', $tz );
 	}
 
-	//'' | 'imported' | 'plugin'                       //FixIn: 8.8.3.19        //FixIn: 2.0.20.2
-	if ( 'imported' == get_bk_option( 'booking_is_ics_export_imported_bookings' ) ) {
+	return $dt->format( 'Ymd\THis' );
+}
+
+/**
+ * Normalize seconds to :00 for clean slots (avoid :01/:02 artifacts).
+ *
+ * @param string       $sql_dt
+ * @param DateTimeZone $tz
+ *
+ * @return string  "Y-m-d H:i:00" on success, original input if parsing fails
+ */
+function wpbc_normalize_sec_sql( $sql_dt, DateTimeZone $tz ) {
+	$dt = DateTime::createFromFormat( 'Y-m-d H:i:s', $sql_dt, $tz );
+	if ( ! $dt ) {
+		return $sql_dt;
+	}
+
+	return $dt->format( 'Y-m-d H:i:00' );
+}
+
+/**
+ * Add/subtract whole days to a Y-m-d in a specific tz (DST-safe), return Y-m-d.
+ *
+ * @param string       $ymd  "Y-m-d"
+ * @param int          $days can be negative
+ * @param DateTimeZone $tz
+ *
+ * @return string       "Y-m-d"
+ */
+function wpbc_add_days_ymd( $ymd, $days, DateTimeZone $tz ) {
+	$dt = DateTimeImmutable::createFromFormat( 'Y-m-d H:i:s', $ymd . ' 00:00:00', $tz );
+	if ( ! $dt ) {
+		$dt = new DateTimeImmutable( 'now', $tz );
+	}
+	$modifier = ( $days >= 0 ? '+' : '' ) . $days . ' days';
+
+	return $dt->modify( $modifier )->format( 'Y-m-d' );
+}
+
+/**
+ * Add a VTIMEZONE node exactly once per TZID.
+ *
+ * @param ZCiCal     $icalobj
+ * @param string     $tzid
+ * @param string|int $year_start "YYYY"
+ * @param string|int $year_end   "YYYY"
+ * @param array      $added_ref  reference array to track added TZIDs
+ *
+ * @return void
+ */
+/**
+ * Add a VTIMEZONE node exactly once per TZID.
+ * - For Europe/* zones: emit a compact RRULE-based CET/CEST block + X-LIC-LOCATION.
+ * - For other zones: fall back to library helper (detailed transitions).
+ */
+function wpbc_add_vtimezone_once( $icalobj, $tzid, $year_start, $year_end, array &$added_ref ) {
+	if ( empty( $tzid ) ) {
+		return;
+	}
+	if ( isset( $added_ref[ $tzid ] ) ) {
+		return;
+	}
+
+	// Lightweight CET/CEST definition for Europe/* (covers Europe/Prague and peers).
+	if ( strpos( $tzid, 'Europe/' ) === 0 ) {
+		$vtz = new ZCiCalNode( 'VTIMEZONE', $icalobj->curnode );
+		$vtz->addNode( new ZCiCalDataNode( 'TZID:' . $tzid ) );
+		$vtz->addNode( new ZCiCalDataNode( 'X-LIC-LOCATION:' . $tzid ) );
+
+		// STANDARD: last Sunday in October 03:00 -> CET (UTC+1).
+		$std = new ZCiCalNode( 'STANDARD', $vtz );
+		$std->addNode( new ZCiCalDataNode( 'DTSTART:19961027T030000' ) );
+		$std->addNode( new ZCiCalDataNode( 'TZOFFSETFROM:+0200' ) );
+		$std->addNode( new ZCiCalDataNode( 'TZOFFSETTO:+0100' ) );
+		$std->addNode( new ZCiCalDataNode( 'TZNAME:CET' ) );
+		$std->addNode( new ZCiCalDataNode( 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU' ) );
+
+		// DAYLIGHT: last Sunday in March 02:00 -> CEST (UTC+2).
+		$dst = new ZCiCalNode( 'DAYLIGHT', $vtz );
+		$dst->addNode( new ZCiCalDataNode( 'DTSTART:19960331T020000' ) );
+		$dst->addNode( new ZCiCalDataNode( 'TZOFFSETFROM:+0100' ) );
+		$dst->addNode( new ZCiCalDataNode( 'TZOFFSETTO:+0200' ) );
+		$dst->addNode( new ZCiCalDataNode( 'TZNAME:CEST' ) );
+		$dst->addNode( new ZCiCalDataNode( 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU' ) );
+
+	} else {
+		// Fallback: detailed transitions for non‑Europe zones (safer across the globe).
+		ZCTimeZoneHelper::getTZNode( (string) $year_start, (string) $year_end, $tzid, $icalobj->curnode );
+	}
+
+	$added_ref[ $tzid ] = true;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Export ICS here.
+// ---------------------------------------------------------------------------------------------------------------------
+/**
+ * Define export ICS here.
+ * For testing: http://beta/?feed=wpbm-ics
+ *
+ * @param array $param - [ 'wh_booking_type' => '1', 'wh_trash' => '' ].
+ *
+ * @return string
+ */
+function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1', 'wh_trash' => '' ) ) {
+
+	// FixIn: 2.1.13.1 – timezone-safe, UTC stamps, OTA all‑day, single VTIMEZONE, no closures.
+
+	if ( ! function_exists( 'wpbc_api_get_bookings_arr' ) ) {
+		return '';
+	}
+
+	// Resolve export timezone: option 'booking_gcal_timezone' if set, else WP site tz.
+	$site_tz_obj  = wp_timezone();
+	$tzid_opt_raw = (string) get_bk_option( 'booking_gcal_timezone' );
+	$tzid_opt     = trim( $tzid_opt_raw );                 // "" when “Default” is selected
+
+	// Validate TZID (must be a known IANA zone).
+	$tzid = '';
+	if ( $tzid_opt !== '' ) {
+		try {
+			// Will throw on invalid IDs (e.g., typos).
+			$check = new DateTimeZone( $tzid_opt );
+			$tzid  = $tzid_opt;                         // valid — we’ll emit TZID and VTIMEZONE.
+		}
+		catch ( Exception $e ) {
+			$tzid = '';                                  // invalid — treat as Default (no TZID emitted).
+		}
+	}
+
+	// Export timezone object (priority: booking_gcal_timezone > site tz).
+	$export_tz = ( $tzid !== '' ) ? new DateTimeZone( $tzid ) : $site_tz_obj;
+
+	// End date of getting bookings (cutoff +2 years) – done in export tz.
+	$cutoff                    = ( new DateTimeImmutable( 'now', $export_tz ) )->modify( '+2 years' )->format( 'Y-m-d' );
+	$param['wh_booking_date2'] = $cutoff;
+
+	// Export only approved bookings (FixIn: 2.0.11.1 / 8.5.2.3).
+	$booking_is_ics_export_only_approved = get_bk_option( 'booking_is_ics_export_only_approved' );
+	$param['wh_approved']                = ( 'On' === $booking_is_ics_export_only_approved ) ? '1' : '';
+
+	// '' | 'imported' | 'plugin' (FixIn: 8.8.3.19 / 2.0.20.2).
+	if ( 'imported' === get_bk_option( 'booking_is_ics_export_imported_bookings' ) ) {
 		$param['wh_sync_gid'] = 'imported';
 	}
-	if ( 'plugin' == get_bk_option( 'booking_is_ics_export_imported_bookings' ) ) {
+	if ( 'plugin' === get_bk_option( 'booking_is_ics_export_imported_bookings' ) ) {
 		$param['wh_sync_gid'] = 'plugin';
 	}
 
+	$_REQUEST['tab'] = 'vm_calendar';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      // FixIn: 10.12.3.2 / 8.5.2.15 / 2.0.11.2.
 
-	$_REQUEST['tab'] = 'vm_calendar';           // FixIn: 10.12.3.2.   //FixIn: 8.5.2.15       2.0.11.2
 	// Get array of bookings.
 	$bookings_arr = wpbc_api_get_bookings_arr( $param );
 
-
 	ob_start();
-			
-	// create the ical object
+
+	// Create the iCal object.
 	$icalobj = new ZCiCal();
 
-
-	// 5.7. REFRESH-INTERVAL Property: https://www.rfc-editor.org/rfc/rfc7986.html#section-5.7  https://icalendar.org/New-Properties-for-iCalendar-RFC-7986/5-7-refresh-interval-property.html
-
-	/**
-	 *	4.3.6   Duration        https://www.rfc-editor.org/rfc/rfc2445.txt
-
-		   Value Name: DURATION
-
-		   Purpose: This value type is used to identify properties that contain
-		   a duration of time.
-
-		   Formal Definition: The value type is defined by the following
-		   notation:
-
-		     dur-value  = (["+"] / "-") "P" (dur-date / dur-time / dur-week)
-
-		     dur-date   = dur-day [dur-time]
-		     dur-time   = "T" (dur-hour / dur-minute / dur-second)
-		     dur-week   = 1*DIGIT "W"
-		     dur-hour   = 1*DIGIT "H" [dur-minute]
-		     dur-minute = 1*DIGIT "M" [dur-second]
-		     dur-second = 1*DIGIT "S"
-		     dur-day    = 1*DIGIT "D"
-
-		   Description: If the property permits, multiple "duration" values are
-		   specified by a COMMA character (US-ASCII decimal 44) separated list
-		   of values. The format is expressed as the [ISO 8601] basic format for
-		   the duration of time. The format can represent durations in terms of
-		   weeks, days, hours, minutes, and seconds.
-		   No additional content value encoding (i.e., BACKSLASH character
-		   encoding) are defined for this value type.
-
-		   Example: A duration of 15 days, 5 hours and 20 seconds would be:
-
-		     P15DT5H0M20S
-
-		   A duration of 7 weeks would be:
-
-		     P7W
-	 */
-
-	$datanode = new ZCiCalDataNode( "REFRESH-INTERVAL;VALUE=DURATION:PT10M" );      //  PERIOD TIME 10 Minutes          //FixIn: 2.0.30.1
-	//$datanode = new ZCiCalDataNode( "REFRESH-INTERVAL;VALUE=DURATION:PT1H" );     //  PERIOD TIME 1 HOUR
+	// Calendar headers (library adds VERSION/PRODID; we add refresh hints).
+	$datanode                                       = new ZCiCalDataNode( 'REFRESH-INTERVAL;VALUE=DURATION:PT10M' );                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  // 10 minutes.
+	$icalobj->curnode->data[ $datanode->getName() ] = $datanode;
+	$datanode                                       = new ZCiCalDataNode( 'X-PUBLISHED-TTL:PT10M' ); // 10 minutes.
 	$icalobj->curnode->data[ $datanode->getName() ] = $datanode;
 
-	// This property  for MS Outlook:       // https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcical/1fc7b244-ecd1-4d28-ac0c-2bb4df855a1f  or
-	$datanode = new ZCiCalDataNode( "X-PUBLISHED-TTL:PT10M" );                      //  PERIOD TIME 10 Minutes      -   Outlook
-	$icalobj->curnode->data[ $datanode->getName() ] = $datanode;
+	$all_day_export = ( 'On' === get_wpbm_option( 'wpbm_is_export_only_full_days' ) ); // OTA toggle.
 
+	// Host for UIDs (global uniqueness).
+	$host = wp_parse_url( home_url(), PHP_URL_HOST );
+	if ( empty( $host ) ) {
+		$host = 'example.org';
+	}
+	if ( 'localhost' === $host ) {
+		$host = 'localhost.localdomain';
+	}
 
-	//TODO: Some interesting info  about updates of events: https://stackoverflow.com/questions/65812300/publishing-frequently-changing-icalendar-via-methodpublish-in-combination-with
+	// Track VTIMEZONE additions per TZID.
+	$__wpbc_added_vtimezones = array();
 
 	foreach ( $bookings_arr['bookings'] as $bk_id => $bk_arr ) {
 
-		// create the event within the ical object
+		// Create the master event within the iCal object.
 		$eventobj = new ZCiCalNode( 'VEVENT', $icalobj->curnode );
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// SUMMARY  [Title]
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-						
-		if ( function_exists( 'get_title_for_showing_in_day' ) ) {	// Get title  of booking pipiline in "Calendar Overview" page
-			
-			if ( true ) {																									// admin
-				$what_show_in_day_template = get_bk_option( 'booking_default_title_in_day_for_calendar_view_mode' );
-			} else {																										// front-end
-				$what_show_in_day_template = get_bk_option( 'booking_default_title_in_day_for_timeline_front_end' );
-			}
-			//$title = esc_textarea( get_title_for_showing_in_day( $bk_id, $bookings_arr['bookings'], $what_show_in_day_template ) );
-			$title = get_title_for_showing_in_day( $bk_id, $bookings_arr['bookings'], $what_show_in_day_template );     //FixIn: 2.0.1.6.1
-			
+		// ---------------------------------------------------------------------------------------------
+		// SUMMARY
+		// ---------------------------------------------------------------------------------------------
+		if ( function_exists( 'get_title_for_showing_in_day' ) ) {
+			$what_show_in_day_template = get_bk_option( 'booking_default_title_in_day_for_calendar_view_mode' );
+			$title                     = get_title_for_showing_in_day( $bk_id, $bookings_arr['bookings'], $what_show_in_day_template );
 		} else {
-			
-			$title =   ( ( isset( $bk_arr->form_data['name'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['name'] ) : '' )
-					.  ( ( isset( $bk_arr->form_data['firstname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['firstname'] ) : '' )
-					.  ( ( isset( $bk_arr->form_data['secondname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['secondname'] ) : '' )
-					.  ( ( isset( $bk_arr->form_data['lastname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['lastname'] ) : '' );			
+			$title = ( isset( $bk_arr->form_data['name'] ) ? ' ' . esc_textarea( $bk_arr->form_data['name'] ) : '' );
+			$title .= ( isset( $bk_arr->form_data['firstname'] ) ? ' ' . esc_textarea( $bk_arr->form_data['firstname'] )
+				: '' );
+			$title .= ( isset( $bk_arr->form_data['secondname'] )
+				? ' ' . esc_textarea( $bk_arr->form_data['secondname'] ) : '' );
+			$title .= ( isset( $bk_arr->form_data['lastname'] ) ? ' ' . esc_textarea( $bk_arr->form_data['lastname'] )
+				: '' );
 		}
 
-		// Insert  the name of booking resource  into title of .ics event
-		//$title = $bk_arr->form_data['_all_fields_']['resource_title']->title . ' - ' . $title;
-
-		$is_hide_details =  get_wpbm_option( 'wpbm_is_hide_details' );
-		if ( 'On' === $is_hide_details ) {      //FixIn: 2.0.12.3
+		$is_hide_details = get_wpbm_option( 'wpbm_is_hide_details' );
+		if ( 'On' === $is_hide_details ) {
 			$title = '';
 		}
-		$title = wpbm_esc_to_plain_text( $title );                                                                      //FixIn: 2.0.1.6.1
+		$title     = ltrim( (string) $title ); // optional: avoid leading space.
+		$title_ics = wpbc_ics_escape_text( wpbm_esc_to_plain_text( $title ) );
+		$eventobj->addNode( new ZCiCalDataNode( 'SUMMARY:' . $title_ics ) );
 
-//$title = substr($title, 0, 5);
-		$eventobj->addNode( new ZCiCalDataNode( 'SUMMARY:' . trim( $title ) ) );
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// ---------------------------------------------------------------------------------------------
 		// DESCRIPTION
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		$description = $bk_arr->form_show;
-//		if ( ( ! empty($bk_arr->dates) ) && ( $bk_arr->dates[0]->approved ) ){
-//			$description .= '<br>Status: Approved';
-//		} else {
-//			$description .= '<br>Status: Pending';
-//		}
-
-		//$description = html_entity_decode( sanitize_text_field( $description ) ); 
-		//$description =  trim( wp_specialchars_decode( esc_html( stripslashes( $description ) ), ENT_QUOTES ) );
-		if ( 'On' === $is_hide_details ) {      //FixIn: 2.0.12.3
-			$description = '';
-		}
-		$description = wpbm_esc_to_plain_text(  $description );
-
-//debuge($description . '!');die;
-//$description = substr($description, 0, 1);
-		$description = preg_replace( array( "/\n/" ), array( '' ), $description );
-//debuge( ZCiCal::formatContent( $description ) );die;
-		$eventobj->addNode( new ZCiCalDataNode( 'DESCRIPTION:' . ZCiCal::formatContent( $description ) ) );
-		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// START & END DATES
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		$event_start =  $bk_arr->dates_short[ 0 ];
-		if ( ( count($bk_arr->dates_short) > 1 ) && ( '-' === $bk_arr->dates_short[ 1 ] ) ) {
-			
-			$event_end   = $bk_arr->dates_short[ 2 ];
-				
-			$event_end = wpbm_get_next_date_if_it_full_date( $event_end );
-				
+		// ---------------------------------------------------------------------------------------------
+		$description_raw = ( 'On' === $is_hide_details ) ? '' : $bk_arr->form_show;
+		$description_raw = ltrim( (string) $description_raw );   // remove leading whitespace/newlines.
+		$description_ics = wpbc_ics_escape_text( wpbm_esc_to_plain_text( $description_raw ) );
+		$description_ics = preg_replace('/\s+/', ' ', $description_ics);
+		$eventobj->addNode( new ZCiCalDataNode( 'DESCRIPTION:' . $description_ics ) );
+		// ---------------------------------------------------------------------------------------------
+		// START & END (master span from dates_short)
+		// ---------------------------------------------------------------------------------------------
+		$event_start = $bk_arr->dates_short[0];
+		if ( ( count( $bk_arr->dates_short ) > 1 ) && ( '-' === $bk_arr->dates_short[1] ) ) {
+			$event_end          = $bk_arr->dates_short[2];
+			$event_end          = wpbm_get_next_date_if_it_full_date( $event_end ); // make end exclusive for YYYY-mm-dd
 			$period_start_index = 3;
-		} else {											// comma
-			$event_end   = $bk_arr->dates_short[ 0 ];
-			
-			$event_end = wpbm_get_next_date_if_it_full_date( $event_end );
-
+		} else { // comma or single day.
+			$event_end          = $bk_arr->dates_short[0];
+			$event_end          = wpbm_get_next_date_if_it_full_date( $event_end );
 			$period_start_index = 1;
 		}
 
-		//FixIn: 2.1.12.1
-		if ( 'On' === get_wpbm_option( 'wpbm_is_export_only_full_days' ) ) {
-			$event_start = substr( $event_start, 0, 10 );
-			$event_end   = substr( $event_end, 0, 10 );
+		if ( $all_day_export ) {
+			// OTA all-day mode (end exclusive).
+			$event_start = substr( $event_start, 0, 10 ); // Y-m-d
+			$event_end   = substr( $event_end, 0, 10 );   // Y-m-d
 			if ( $event_start === $event_end ) {
-				$event_end = gmdate( "Y-m-d", strtotime( "+1 day", strtotime( $event_end ) ) );
+				$event_end = wpbc_add_days_ymd( $event_end, 1, $export_tz );
+			}
+		} else {
+			// Timed mode: normalize seconds to :00 for clean slots.
+			if ( strlen( $event_start ) > 10 ) {
+				$event_start = wpbc_normalize_sec_sql( $event_start, $export_tz );
+			}
+			if ( strlen( $event_end ) > 10 ) {
+				$event_end = wpbc_normalize_sec_sql( $event_end, $export_tz );
 			}
 		}
 
-		// add start date
-		$eventobj->addNode( new ZCiCalDataNode( "DTSTART:" . ZCiCal::fromSqlDateTime( $event_start ) ) );
+		// Add VTIMEZONE once (timed mode with TZID).
+		if ( ! $all_day_export && ! empty( $tzid ) ) {
+			wpbc_add_vtimezone_once( $icalobj, $tzid, substr( $event_start, 0, 4 ), substr( $event_end, 0, 4 ), $__wpbc_added_vtimezones );
+		}
 
-		// add end date
-		$eventobj->addNode( new ZCiCalDataNode( "DTEND:" . ZCiCal::fromSqlDateTime( $event_end ) ) );
-		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// RDATE   -  Rule for other different dates.
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//
-		//		RDATE;VALUE=PERIOD:19960403T020000Z/19960403T040000Z,
-        //		19960404T010000Z/PT3H		
-		//
-		$rdate = array();
-		$previos_value = '';
-		foreach ( $bk_arr->dates_short as $short_ind => $bk_date ) {
-			
-			if ( $short_ind < $period_start_index )
-				continue;
-			
-			if (   ( $bk_date !== ',' ) && ( $bk_date !== '-' )   ) {
-
-				if ( $previos_value == '-' ) {
-					$bk_date = wpbm_get_next_date_if_it_full_date( $bk_date );
-				} else {
-					$bk_date = wpbm_get_only_date_if_it_full_date( $bk_date );
-				}
-
-				if(strlen($bk_date) > 10){
-					// Date with Time
-					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
-				} else {
-					// Only Full Dates      //FixIn: 2.1.10.1
-					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
-					$rdate[] = '/';
-					$rdate[]= ZCiCal::fromSqlDateTime( $bk_date );
-				}
-
-			} else if ( ( $bk_date === '-' ) && ( count($rdate) > 0 ) ) {
-				$rdate[] = '/';				// PERIOD
-
-			} else if ( ( $bk_date === ',' ) && ( count($rdate) > 0 ) ) {
-				$rdate[] = ',';				// Other date
+		// DTSTART / DTEND for the master VEVENT.
+		if ( $all_day_export ) {
+			$eventobj->addNode( new ZCiCalDataNode( 'DTSTART;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $event_start ) ) );
+			$eventobj->addNode( new ZCiCalDataNode( 'DTEND;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $event_end ) ) );
+		} else {
+			if ( ! empty( $tzid ) ) {
+				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART;TZID=' . $tzid . ':' . wpbc_to_ics_local( $event_start, $export_tz ) ) ); // local + TZID
+				$eventobj->addNode( new ZCiCalDataNode( 'DTEND;TZID=' . $tzid . ':' . wpbc_to_ics_local( $event_end, $export_tz ) ) );
+			} else {
+				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART:' . wpbc_to_ics_utc( $event_start, $export_tz ) ) ); // UTC Z fallback
+				$eventobj->addNode( new ZCiCalDataNode( 'DTEND:' . wpbc_to_ics_utc( $event_end, $export_tz ) ) );
 			}
-			$previos_value = $bk_date;
-		}
-		if ( ! empty( $rdate ) ) {
-			$rdate = implode( '', $rdate );
-			// add RDATE
-			$eventobj->addNode( new ZCiCalDataNode( "RDATE;VALUE=PERIOD:" . $rdate ) );
-			
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Timezone
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		/* Timezone must be a supported PHP timezone (see http://php.net/manual/en/timezones.php )
-		 * Note: multi-word timezones must use underscore "_" separator
-		 * Example:     $tzid = "America/New_York";
-		 */
-
-		$tzid = get_bk_option( 'booking_gcal_timezone' );
-
-		if ( ! empty( $tzid ) ) {
-			// Add timezone data
-			ZCTimeZoneHelper::getTZNode( substr( $event_start, 0, 4 ), substr( $event_end, 0, 4 ), $tzid, $icalobj->curnode );      //FixIn: 2.0.3.3
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// UID
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		$uid = $event_start . '_' . $bk_id . "@demo.icalendar.org";
-		$uid = str_replace( array( '_', ' ' ), '-', $uid );                 //FixIn: 2.1.7.1
-		$eventobj->addNode( new ZCiCalDataNode( "UID:" . $uid ) );
-		
-		// DTSTAMP is a required item in VEVENT
-		$eventobj->addNode( new ZCiCalDataNode( "DTSTAMP:" . ZCiCal::fromSqlDateTime() ) );
-
-		$eventobj->addNode( new ZCiCalDataNode( "CREATED:" . ZCiCal::fromSqlDateTime( $bk_arr->modification_date ) ) );
-		$eventobj->addNode( new ZCiCalDataNode( "LAST-MODIFIED:" . ZCiCal::fromSqlDateTime( $bk_arr->modification_date ) ) );
-		
-		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// STATUS:CONFIRMED		( "TENTATIVE" / "CONFIRMED" / "CANCELLED" )												// This property defines the overall status for EVENT
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
+		// ---------------------------------------------------------------------------------------------
+		// STATUS / TRANSP
+		// ---------------------------------------------------------------------------------------------
 		$ics_status = 'TENTATIVE';
-		if ( ! ( empty( $bk_arr->trash ) ) ) {
+		if ( ! empty( $bk_arr->trash ) ) {
 			$ics_status = 'CANCELLED';
-		} elseif ( ! ( empty( $bk_arr->dates[0]->approved ) ) ) {
+		} elseif ( ! empty( $bk_arr->dates[0]->approved ) ) {
 			$ics_status = 'CONFIRMED';
 		}
-		$eventobj->addNode( new ZCiCalDataNode( "STATUS:" . $ics_status ) );    //FixIn: 2.0.11.3       //FixIn: 2.0.12.2
+		$eventobj->addNode( new ZCiCalDataNode( 'STATUS:' . $ics_status ) );
+		$eventobj->addNode( new ZCiCalDataNode( 'TRANSP:OPAQUE' ) );
 
-		// Check more here: https://icalendar.org/iCalendar-RFC-5545/3-2-9-free-busy-time-type.html                     //FixIn: 2.1.9.1
-		$ics_busy = 'BUSY';                                  // ("FREE" / "BUSY" / "BUSY-UNAVAILABLE" / "BUSY-TENTATIVE"
-		$eventobj->addNode( new ZCiCalDataNode( "FBTYPE:" . $ics_busy ) );
+		// ---------------------------------------------------------------------------------------------
+		// Expand extra dates/ranges into standalone VEVENTs (better than RDATE/RRULE for OTA/clients)
+		// ---------------------------------------------------------------------------------------------
+		$segments = array();         // each: ['start_sql' => 'Y-m-d[ H:i:s]', 'end_sql' => 'Y-m-d[ H:i:s]'|null]
+		$prev     = '';
+		$current  = null;
 
-		//FixIn: 2.0.20.1
-		//ATTENDEE;SENT-BY=MAILTO:jan_doe@host1.com;CN=John Smith:MAILTO:jsmith@host1.com           // More here https://www.kanzaki.com/docs/ical/attendee.html
-		if ( isset( $bk_arr->form_data['email'] ) ) {
+		foreach ( $bk_arr->dates_short as $i => $tok ) {
+			if ( $i < $period_start_index ) {
+				continue;
+			}
+			if ( ',' !== $tok && '-' !== $tok ) {
+				if ( '-' === $prev ) {
+					$tok_norm = wpbm_get_next_date_if_it_full_date( $tok ); // range end (exclusive if Y-m-d)
+				} else {
+					$tok_norm = wpbm_get_only_date_if_it_full_date( $tok );  // start or single
+				}
+				if ( '-' === $prev ) {
+					if ( $current ) {
+						$current['end_sql'] = $tok_norm;
+					}
+				} else {
+					$current = array( 'start_sql' => $tok_norm, 'end_sql' => null );
+				}
+			} elseif ( ',' === $tok ) {
+				if ( $current ) {
+					$segments[] = $current;
+					$current    = null;
+				}
+			}
+			$prev = $tok;
+		}
+		if ( $current ) {
+			$segments[] = $current;
+		}
 
-			$cn_title = ( ( isset( $bk_arr->form_data['name'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['name'] ) : '' )
-			            . ( ( isset( $bk_arr->form_data['firstname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['firstname'] ) : '' )
-			            . ( ( isset( $bk_arr->form_data['secondname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['secondname'] ) : '' )
-			            . ( ( isset( $bk_arr->form_data['lastname'] ) ) ? ' ' . esc_textarea( $bk_arr->form_data['lastname'] ) : '' );
+		if ( ! empty( $segments ) ) {
+			// Duration basis for timed events.
+			$master_duration = 0;
+			if ( ! $all_day_export ) {
+				$dts             = DateTime::createFromFormat( 'Y-m-d H:i:s', $event_start, $export_tz );
+				$dte             = DateTime::createFromFormat( 'Y-m-d H:i:s', $event_end, $export_tz );
+				$master_duration = ( $dts && $dte && $dte > $dts ) ? ( $dte->getTimestamp() - $dts->getTimestamp() )
+					: 3600;
+			}
 
-			$attendee_email = $bk_arr->form_data['email'];
-			if ( 'On' !== $is_hide_details ) {
-				$eventobj->addNode( new ZCiCalDataNode( "ATTENDEE;CN=" . $cn_title . ":MAILTO:" . $attendee_email ) );
+			$seg_idx = 0;
+			foreach ( $segments as $s ) {
+				++ $seg_idx;
+				$ev = new ZCiCalNode( 'VEVENT', $icalobj->curnode );
+
+				if ( $all_day_export ) {
+					$start_d = substr( $s['start_sql'], 0, 10 );
+					if ( ! empty( $s['end_sql'] ) ) {
+						$end_d = substr( $s['end_sql'], 0, 10 );
+						$end_d = wpbc_add_days_ymd( $end_d, 1, $export_tz ); // exclusive
+					} else {
+						$end_d = wpbc_add_days_ymd( $start_d, 1, $export_tz );
+					}
+					$ev->addNode( new ZCiCalDataNode( 'DTSTART;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $start_d ) ) );
+					$ev->addNode( new ZCiCalDataNode( 'DTEND;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $end_d ) ) );
+
+				} else {
+					$start_sql = ( strlen( $s['start_sql'] ) > 10 )
+						? wpbc_normalize_sec_sql( $s['start_sql'], $export_tz ) : $s['start_sql'];
+					if ( ! empty( $s['end_sql'] ) ) {
+						$end_sql = ( strlen( $s['end_sql'] ) > 10 )
+							? wpbc_normalize_sec_sql( $s['end_sql'], $export_tz ) : $s['end_sql'];
+					} else {
+						$dt = DateTime::createFromFormat( 'Y-m-d H:i:s', $start_sql, $export_tz );
+						if ( $dt ) {
+							$dt->modify( '+' . $master_duration . ' seconds' );
+							$end_sql = $dt->format( 'Y-m-d H:i:s' );
+						} else {
+							$end_sql = $start_sql;
+						}
+					}
+
+					if ( ! empty( $tzid ) ) {
+						$ev->addNode( new ZCiCalDataNode( 'DTSTART;TZID=' . $tzid . ':' . wpbc_to_ics_local( $start_sql, $export_tz ) ) );
+						$ev->addNode( new ZCiCalDataNode( 'DTEND;TZID=' . $tzid . ':' . wpbc_to_ics_local( $end_sql, $export_tz ) ) );
+					} else {
+						$ev->addNode( new ZCiCalDataNode( 'DTSTART:' . wpbc_to_ics_utc( $start_sql, $export_tz ) ) );
+						$ev->addNode( new ZCiCalDataNode( 'DTEND:' . wpbc_to_ics_utc( $end_sql, $export_tz ) ) );
+					}
+				}
+
+				// Copy common fields.
+				$ev->addNode( new ZCiCalDataNode( 'SUMMARY:' . $title_ics ) );
+				$ev->addNode( new ZCiCalDataNode( 'DESCRIPTION:' . $description_ics ) );
+				$ev->addNode( new ZCiCalDataNode( 'STATUS:' . $ics_status ) );
+				$ev->addNode( new ZCiCalDataNode( 'TRANSP:OPAQUE' ) );
+
+				// Unique UID per extra VEVENT.
+				$uid_extra = $bk_id . '-' . $seg_idx . '@' . $host;
+				$ev->addNode( new ZCiCalDataNode( 'UID:' . $uid_extra ) );
+
+				// Timestamps in UTC Z.
+				$ev->addNode( new ZCiCalDataNode( 'DTSTAMP:' . wpbc_to_ics_utc( null, $export_tz ) ) );
+				$ev->addNode( new ZCiCalDataNode( 'CREATED:' . wpbc_to_ics_utc( $bk_arr->modification_date, $export_tz ) ) );
+				$ev->addNode( new ZCiCalDataNode( 'LAST-MODIFIED:' . wpbc_to_ics_utc( $bk_arr->modification_date, $export_tz ) ) );
 			}
 		}
 
-		// RRULE:FREQ=WEEKLY;COUNT=3;BYDAY=WE,SA
-		// LOCATION:South Australia\, Australia
-		// SEQUENCE:1									// defines the revision sequence number of the calendar component within a sequence of revisions 
-		// TRANSP:OPAQUE								// This property defines whether or not an event is transparent to busy time searches	;Default value is OPAQUE
-		//		  OPAQUE		-  Blocks or opaque on busy time searches.
-		//		  TRANSPARENT 	-  Transparent on busy time searches.
-		
+		// ---------------------------------------------------------------------------------------------
+		// UID (master)
+		// ---------------------------------------------------------------------------------------------
+		$uid = $bk_id . '@' . $host; // stable UID not tied to start time.
+		$eventobj->addNode( new ZCiCalDataNode( 'UID:' . $uid ) );
+
+		// DTSTAMP / CREATED / LAST-MODIFIED in UTC Z.
+		$eventobj->addNode( new ZCiCalDataNode( 'DTSTAMP:' . wpbc_to_ics_utc( null, $export_tz ) ) );
+		$eventobj->addNode( new ZCiCalDataNode( 'CREATED:' . wpbc_to_ics_utc( $bk_arr->modification_date, $export_tz ) ) );
+		$eventobj->addNode( new ZCiCalDataNode( 'LAST-MODIFIED:' . wpbc_to_ics_utc( $bk_arr->modification_date, $export_tz ) ) );
+
+		// ---------------------------------------------------------------------------------------------
+		// ATTENDEE (optional)
+		// ---------------------------------------------------------------------------------------------
+		if ( isset( $bk_arr->form_data['email'] ) && ( 'On' !== $is_hide_details ) ) {
+			$cn_title = ( isset( $bk_arr->form_data['name'] ) ? ' ' . esc_textarea( $bk_arr->form_data['name'] ) : '' );
+			$cn_title .= ( isset( $bk_arr->form_data['firstname'] )
+				? ' ' . esc_textarea( $bk_arr->form_data['firstname'] ) : '' );
+			$cn_title .= ( isset( $bk_arr->form_data['secondname'] )
+				? ' ' . esc_textarea( $bk_arr->form_data['secondname'] ) : '' );
+			$cn_title .= ( isset( $bk_arr->form_data['lastname'] )
+				? ' ' . esc_textarea( $bk_arr->form_data['lastname'] ) : '' );
+
+			$cn_clean       = trim( wpbm_esc_to_plain_text( $cn_title ) );
+			$cn_clean       = addcslashes( $cn_clean, "\\,;\"" ); // escape per RFC
+			$attendee_email = $bk_arr->form_data['email'];
+			$eventobj->addNode( new ZCiCalDataNode( 'ATTENDEE;CN="' . $cn_clean . '":MAILTO:' . $attendee_email ) );
+		}
 	}
 
-	echo $icalobj->export();			// write iCalendar feed to stdout
+	// Output iCalendar text.
+	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo $icalobj->export();
 
 	$ics_export = ob_get_contents();
-
-	$ics_export = trim( $ics_export );      //FixIn: 2.1.9.2
-
+	$ics_export = trim( $ics_export );
 	ob_end_clean();
 
 	return $ics_export;
 }
+
 
 
 /** Get Next day in MySQL format without time,  if current day  its Full day - ending with 00:00:00

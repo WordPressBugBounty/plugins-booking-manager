@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 2.1.13
+Stable tag: 2.1.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,12 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.14 =
+* **Improvement** Improved iCal/ICS export for full compatibility.
+* **Improvement** Reworked recurring and multi-date export logic: now generates one VEVENT per date/range instead of RDATE rules, ensuring full compatibility with Google Calendar, Outlook, Apple Calendar, Booking.com, Airbnb, and other iCal consumers.
+* **Improvement** Corrected date handling to respect the site’s timezone for both all-day and timed events, preventing off-by-one-day issues.
+* **Improvement** Added safer UID generation and consistent metadata for better sync reliability.
+
 = 2.1.13 =
 * Fix: When accessing the .ics calendar feed for a parent booking resource (with specific capacity) in Booking Calendar Business Large, only bookings from the parent resource are now exported. Previously, bookings from all associated child resources were incorrectly included. (Version 10.12.3.2)
 

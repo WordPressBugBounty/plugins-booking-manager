@@ -289,6 +289,79 @@ class ZCiCalNode {
 		return $html;
 	}
 
+
+	// FixIn: 2025-08-11. 12:52
+			/**
+			 * Find a safe byte index to cut $s at, not exceeding $maxBytes.
+			 * - Prefer last ' ' or ',' or ';' <= $maxBytes
+			 * - Avoid cutting immediately after a backslash (to keep escapes like "\n" intact)
+			 * - Ensure we don't split a UTF-8 code point
+			 * Returns byte length to keep.
+			 */
+			private static function _utf8_safe_cut_pos( $s, $maxBytes ) {
+				$len = strlen( $s );
+				if ( $len <= $maxBytes ) {
+					return $len;
+				}
+
+				// Start with hard limit
+				$cut = $maxBytes;
+
+				// Prefer last breakable char within the current window
+				$window    = substr( $s, 0, $cut );
+				$lastSpace = strrpos( $window, ' ' );
+				$lastComma = strrpos( $window, ',' );
+				$lastSemi  = strrpos( $window, ';' );
+				$pref      = max( $lastSpace === false ? - 1 : $lastSpace, $lastComma === false ? - 1
+					: $lastComma, $lastSemi === false ? - 1 : $lastSemi );
+
+				if ( $pref >= 0 ) {
+					$cut = $pref + 1; // cut *after* the delimiter/space so it stays on line
+				}
+
+				// Avoid cutting right after backslash (don’t break "\n", "\,", "\;", "\\")
+				if ( $cut > 0 && $s[ $cut - 1 ] === '\\' ) {
+					$cut -= 1;
+					if ( $cut <= 0 ) {
+						$cut = $maxBytes;
+					} // fallback
+				}
+
+				// Ensure we don't chop inside a UTF-8 multibyte char
+				// Move back until at start of a UTF-8 code point
+				while ( $cut > 0 && ( ord( $s[ $cut ] ) & 0xC0 ) === 0x80 ) {
+					$cut --;
+				}
+				if ( $cut <= 0 ) {
+					$cut = $maxBytes;
+				} // ultimate fallback
+
+				return $cut;
+			}
+
+			/**
+			 * Fold one logical line into RFC 5545 physical lines.
+			 * $firstWidth = 75 octets, $contWidth = 74 octets.
+			 */
+			private static function _fold_ical_line( $line, $firstWidth = 75, $contWidth = 74 ) {
+				$out   = '';
+				$first = true;
+				while ( strlen( $line ) > 0 ) {
+					$width = $first ? $firstWidth : $contWidth;
+					$cut   = self::_utf8_safe_cut_pos( $line, $width );
+					$chunk = substr( $line, 0, $cut );
+					$line  = substr( $line, $cut );
+					if ( ! $first ) {
+						$out .= ' ';
+					}
+					$out   .= $chunk . "\r\n";
+					$first = false;
+				}
+
+				return $out;
+			}
+
+
 	/**
 	 * export tree to icalendar format
 	 *
@@ -318,25 +391,13 @@ class ZCiCalNode {
 				}
 			}
 			$values = $d->getValues();
-			// don't think we need this, Sunbird does not like it in the EXDATE field
-			//$values = str_replace(",", "\\,", $values);
 
 			$line = $d->getName() . $p . ":" . $values;
-			$line = str_replace(array("<br>","<BR>","<br/>","<BR/"),"\\n",$line);
-			$line = str_replace(array("\r\n","\n\r","\n","\r"),'\n',$line);
-			//$line = str_replace(array(',',';','\\'), array('\\,','\\;','\\\\'),$line);
-			//$line =strip_tags($line);
-			$linecount = 0;
-			while (strlen($line) > 0) {
-				$linewidth = ($linecount == 0? 75 : 74);
-				$linesize = (strlen($line) > $linewidth? $linewidth: strlen($line));
-				if($linecount > 0)
-					$txtstr .= " ";
-				$txtstr .= substr($line,0,$linesize) . "\r\n";
-				$linecount += 1;
-				$line = substr($line,$linewidth);
-			}
-			//echo $line . "\n";
+			$line = str_replace( array( "<br>", "<BR>", "<br/>", "<BR/" ), "\\n", $line );
+			$line = str_replace( array( "\r\n", "\n\r", "\n", "\r" ), '\n', $line );
+
+			// FixIn: 2025-08-11 12:53.
+			$txtstr .= self::_fold_ical_line( $line );
 		}
 		foreach ($node->child as $c){
 			$txtstr .= $node->export($c,$level + 1);

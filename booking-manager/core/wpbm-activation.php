@@ -173,9 +173,9 @@ function wpbm_get_default_options( $option_name = '' ) {
 	
 	$default_options[ 'wpbm_menu_position' ] = ( $is_demo ) ? 'bottom' : 'bottom';
 	// User permissions
-	$default_options[ 'wpbm_user_role_master' ] = ( $is_demo ) ? 'subscriber' : 'editor';
-	//$default_options[ 'wpbm_user_role_addnew' ] = ( $is_demo ) ? 'subscriber' : 'editor';
-	//$default_options[ 'wpbm_user_role_settings' ] = ( $is_demo ) ? 'subscriber' : 'editor';
+	$default_options[ 'wpbm_user_role_master' ] = 'subscriber';
+	//$default_options[ 'wpbm_user_role_addnew' ] = 'subscriber';
+	//$default_options[ 'wpbm_user_role_settings' ] = 'subscriber';
 	// Position
 
 	// Uninstall.
