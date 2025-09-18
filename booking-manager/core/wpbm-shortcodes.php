@@ -28,6 +28,8 @@ function wpbm_ics_import_shortcode( $attr ) {
 		return wpbc_get_preview_for_shortcode( 'booking-manager-import', $attr );      //FixIn: 9.9.0.39
 	}
 
+	if ( wpbm_block_shortcodes_if_unpublished() ) { return ''; }  // FixIn: 2.1.15.1.
+
 	ob_start();
 	
     $import_status = wpbm_ics_import_start( $attr );
@@ -73,6 +75,8 @@ function wpbm_ics_listing_shortcode( $attr ) {
 		return wpbc_get_preview_for_shortcode( 'booking-manager-listing', $attr );      //FixIn: 9.9.0.39
 	}
 
+	if ( wpbm_block_shortcodes_if_unpublished() ) { return ''; }  // FixIn: 2.1.15.1.
+
 	$listing = wpbm_ics_get_listing( $attr );
 
 	return $listing;
@@ -89,6 +93,8 @@ function wpbm_ics_delete_shortcode( $attr ) {
 	if ( ( function_exists( 'wpbc_is_on_edit_page' ) ) && ( wpbc_is_on_edit_page() ) ) {
 		return wpbc_get_preview_for_shortcode( 'booking-manager-delete', $attr );      //FixIn: 9.9.0.39
 	}
+
+	if ( wpbm_block_shortcodes_if_unpublished() ) { return ''; }  // FixIn: 2.1.15.1.
 
 	ob_start();
 
@@ -143,3 +149,44 @@ function wpbm_ics_delete_shortcode( $attr ) {
 	return '';
 }
 add_shortcode( 'booking-manager-delete', 'wpbm_ics_delete_shortcode' );
+
+
+/**
+ * Return true if shortcode should NOT run for the current post context.
+ * Allowed statuses are filterable via 'wpbm_shortcode_allowed_statuses' (default: ['publish']).
+ *
+ * @return bool
+ */
+function wpbm_block_shortcodes_if_unpublished() {
+
+	// FixIn: 2.1.15.1.
+	$post = get_post();
+	if ( ! $post ) {
+		return true; // no post context -> suppress.
+	}
+
+	// e.g. add 'private'.
+	$allowed_statuses = apply_filters( 'wpbm_shortcode_allowed_statuses', array( 'publish' ) );
+
+	// Do not execute the shortcode.
+	if ( ! in_array( $post->post_status, $allowed_statuses, true ) ) {
+		return true;
+	}
+
+	// Optional: allow front-end preview for editors.
+	/*
+	if ( is_preview() && current_user_can( 'edit_post', $post->ID ) ) {
+		return false; // allow
+	}
+	*/
+
+	// Optional: suppress in REST/admin universally.
+	/*
+	if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return true;
+	}
+	*/
+
+	// Execute the shortcode normally.
+	return false;
+}

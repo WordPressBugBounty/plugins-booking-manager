@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 2.1.14
+Stable tag: 2.1.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.15 =
+* **Improvement** Block import/delete shortcodes on non-published posts/pages to prevent unintended actions during review. (2.1.15.1)
+
 = 2.1.14 =
 * **Improvement** Improved iCal/ICS export for full compatibility.
 * **Improvement** Reworked recurring and multi-date export logic: now generates one VEVENT per date/range instead of RDATE rules, ensuring full compatibility with Google Calendar, Outlook, Apple Calendar, Booking.com, Airbnb, and other iCal consumers.
