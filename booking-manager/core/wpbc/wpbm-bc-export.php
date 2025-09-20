@@ -284,6 +284,59 @@ function wpbc_add_days_ymd( $ymd, $days, DateTimeZone $tz ) {
 }
 
 /**
+ * Ensure DTEND is strictly after DTSTART (RFC 5545).
+ *
+ * - All-day mode: treat inputs as Y-m-d; if end <= start → end = start + 1 day (exclusive end).
+ * - Timed mode : normalize to 'Y-m-d H:i:s'; if end <= start → end = start + 1 hour.
+ *
+ * @param string       $start_in  'Y-m-d' or 'Y-m-d H:i:s'
+ * @param string       $end_in    'Y-m-d' or 'Y-m-d H:i:s' (can be empty)
+ * @param DateTimeZone $tz
+ * @param bool         $all_day
+ *
+ * @return array [ $start_out, $end_out ]  (all-day → Y-m-d; timed → 'Y-m-d H:i:00')
+ */
+function wpbc_ics_coerce_order( $start_in, $end_in, DateTimeZone $tz, $all_day ) {
+
+	// Helper for all-day date math.
+	$_add_days = function( $ymd, $days ) use ( $tz ) {
+		return wpbc_add_days_ymd( $ymd, $days, $tz );
+	};
+
+	if ( $all_day ) {
+		$sd = substr( (string) $start_in, 0, 10 );
+		$ed = substr( (string) ($end_in !== '' ? $end_in : $sd), 0, 10 );
+		if ( $ed <= $sd ) {
+			$ed = $_add_days( $sd, 1 );
+		}
+		return array( $sd, $ed );
+	}
+
+	// Timed mode: normalize to full SQL datetimes.
+	$ss = ( strlen( (string) $start_in ) > 10 ) ? $start_in : ( substr( (string) $start_in, 0, 10 ) . ' 00:00:00' );
+	$ee = ( $end_in !== '' )
+		? ( ( strlen( (string) $end_in ) > 10 ) ? $end_in : ( substr( (string) $end_in, 0, 10 ) . ' 00:00:00' ) )
+		: '';
+
+	$ds = DateTime::createFromFormat( 'Y-m-d H:i:s', $ss, $tz );
+	if ( ! $ds ) { $ds = new DateTime( $ss ?: 'now', $tz ); }
+
+	if ( $ee === '' ) {
+		$de = clone $ds;
+		$de->modify( '+1 hour' );
+	} else {
+		$de = DateTime::createFromFormat( 'Y-m-d H:i:s', $ee, $tz );
+		if ( ! $de ) { $de = new DateTime( $ee, $tz ); }
+	}
+	if ( $de <= $ds ) {
+		$de = clone $ds;
+		$de->modify( '+1 hour' );
+	}
+	return array( $ds->format( 'Y-m-d H:i:00' ), $de->format( 'Y-m-d H:i:00' ) );
+}
+
+
+/**
  * Add a VTIMEZONE node exactly once per TZID.
  *
  * @param ZCiCal     $icalobj
@@ -496,17 +549,19 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 			wpbc_add_vtimezone_once( $icalobj, $tzid, substr( $event_start, 0, 4 ), substr( $event_end, 0, 4 ), $__wpbc_added_vtimezones );
 		}
 
-		// DTSTART / DTEND for the master VEVENT.
+		// DTSTART / DTEND for the master VEVENT (coerced so DTEND > DTSTART).
 		if ( $all_day_export ) {
+			list( $event_start, $event_end ) = wpbc_ics_coerce_order( $event_start, $event_end, $export_tz, true );
 			$eventobj->addNode( new ZCiCalDataNode( 'DTSTART;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $event_start ) ) );
-			$eventobj->addNode( new ZCiCalDataNode( 'DTEND;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $event_end ) ) );
+			$eventobj->addNode( new ZCiCalDataNode( 'DTEND;VALUE=DATE:'   . preg_replace( '/[^0-9]/', '', $event_end ) ) );
 		} else {
+			list( $event_start_fixed, $event_end_fixed ) = wpbc_ics_coerce_order( $event_start, $event_end, $export_tz, false );
 			if ( ! empty( $tzid ) ) {
-				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART;TZID=' . $tzid . ':' . wpbc_to_ics_local( $event_start, $export_tz ) ) ); // local + TZID
-				$eventobj->addNode( new ZCiCalDataNode( 'DTEND;TZID=' . $tzid . ':' . wpbc_to_ics_local( $event_end, $export_tz ) ) );
+				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART;TZID=' . $tzid . ':' . wpbc_to_ics_local( $event_start_fixed, $export_tz ) ) );
+				$eventobj->addNode( new ZCiCalDataNode( 'DTEND;TZID='   . $tzid . ':' . wpbc_to_ics_local( $event_end_fixed,   $export_tz ) ) );
 			} else {
-				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART:' . wpbc_to_ics_utc( $event_start, $export_tz ) ) ); // UTC Z fallback
-				$eventobj->addNode( new ZCiCalDataNode( 'DTEND:' . wpbc_to_ics_utc( $event_end, $export_tz ) ) );
+				$eventobj->addNode( new ZCiCalDataNode( 'DTSTART:' . wpbc_to_ics_utc( $event_start_fixed, $export_tz ) ) );
+				$eventobj->addNode( new ZCiCalDataNode( 'DTEND:'   . wpbc_to_ics_utc( $event_end_fixed,   $export_tz ) ) );
 			}
 		}
 
@@ -562,9 +617,11 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 			// Duration basis for timed events.
 			$master_duration = 0;
 			if ( ! $all_day_export ) {
-				$dts             = DateTime::createFromFormat( 'Y-m-d H:i:s', $event_start, $export_tz );
-				$dte             = DateTime::createFromFormat( 'Y-m-d H:i:s', $event_end, $export_tz );
-				$master_duration = ( $dts && $dte && $dte > $dts ) ? ( $dte->getTimestamp() - $dts->getTimestamp() )
+				$basis_start     = isset( $event_start_fixed ) ? $event_start_fixed : $event_start;
+				$basis_end       = isset( $event_end_fixed )   ? $event_end_fixed   : $event_end;
+				$dts             = DateTime::createFromFormat( 'Y-m-d H:i:s', $basis_start, $export_tz );
+				$dte             = DateTime::createFromFormat( 'Y-m-d H:i:s', $basis_end,   $export_tz );
+ 				$master_duration = ( $dts && $dte && $dte > $dts ) ? ( $dte->getTimestamp() - $dts->getTimestamp() )
 					: 3600;
 			}
 
@@ -575,12 +632,9 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 
 				if ( $all_day_export ) {
 					$start_d = substr( $s['start_sql'], 0, 10 );
-					if ( ! empty( $s['end_sql'] ) ) {
-						$end_d = substr( $s['end_sql'], 0, 10 );
-						$end_d = wpbc_add_days_ymd( $end_d, 1, $export_tz ); // exclusive
-					} else {
-						$end_d = wpbc_add_days_ymd( $start_d, 1, $export_tz );
-					}
+					$end_d   = ! empty( $s['end_sql'] ) ? substr( $s['end_sql'], 0, 10 ) : $start_d;
+					list( $start_d, $end_d ) = wpbc_ics_coerce_order( $start_d, $end_d, $export_tz, true );
+
 					$ev->addNode( new ZCiCalDataNode( 'DTSTART;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $start_d ) ) );
 					$ev->addNode( new ZCiCalDataNode( 'DTEND;VALUE=DATE:' . preg_replace( '/[^0-9]/', '', $end_d ) ) );
 
@@ -600,12 +654,15 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 						}
 					}
 
+					// Ensure DTEND > DTSTART for each segment.
+					list( $start_sql, $end_sql ) = wpbc_ics_coerce_order( $start_sql, $end_sql, $export_tz, false );
+
 					if ( ! empty( $tzid ) ) {
 						$ev->addNode( new ZCiCalDataNode( 'DTSTART;TZID=' . $tzid . ':' . wpbc_to_ics_local( $start_sql, $export_tz ) ) );
-						$ev->addNode( new ZCiCalDataNode( 'DTEND;TZID=' . $tzid . ':' . wpbc_to_ics_local( $end_sql, $export_tz ) ) );
+						$ev->addNode( new ZCiCalDataNode( 'DTEND;TZID='   . $tzid . ':' . wpbc_to_ics_local( $end_sql,   $export_tz ) ) );
 					} else {
 						$ev->addNode( new ZCiCalDataNode( 'DTSTART:' . wpbc_to_ics_utc( $start_sql, $export_tz ) ) );
-						$ev->addNode( new ZCiCalDataNode( 'DTEND:' . wpbc_to_ics_utc( $end_sql, $export_tz ) ) );
+						$ev->addNode( new ZCiCalDataNode( 'DTEND:'   . wpbc_to_ics_utc( $end_sql,   $export_tz ) ) );
 					}
 				}
 

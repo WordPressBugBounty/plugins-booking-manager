@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 6.8
-Stable tag: 2.1.15
+Stable tag: 2.1.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,11 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.16 =
+* **Fix** Timed events where end <= start (equal or earlier, e.g., due to a bug or reversed inputs) -> you now get a minimal valid span of +1 hour. Previously this produced invalid ICS (“DTEND before DTSTART”).
+* **Fix** All-day events where end ≤ start -> coerced to +1 day (exclusive end), which matches iCal semantics for single-day all-day events.
+* **Fix** So: for correctly formed bookings, durations are identical. The only “change” is that bad/zero/negative durations are repaired to a minimal valid length so calendars won’t reject the feed.
+
 = 2.1.15 =
 * **Improvement** Block import/delete shortcodes on non-published posts/pages to prevent unintended actions during review. (2.1.15.1)
 
