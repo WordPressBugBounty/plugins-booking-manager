@@ -72,8 +72,8 @@ function wpbm_up_link() {
 function wpbm_is_this_demo() {
 //return ! true;     //TODO: comment it. 2016-09-27    // Replaced!   
 	if (
-			(  ( isset( $_SERVER['SCRIPT_FILENAME'] ) ) && ( strpos( $_SERVER['SCRIPT_FILENAME'], 'oplugins.com' ) !== false ) )
-		||  (  ( isset( $_SERVER['HTTP_HOST'] ) ) && ( strpos( $_SERVER['HTTP_HOST'], 'oplugins.com' ) !== false )  )	
+			(  ( isset( $_SERVER['SCRIPT_FILENAME'] ) ) && ( strpos( sanitize_text_field( wp_unslash($_SERVER['SCRIPT_FILENAME']) ), 'oplugins.com' ) !== false ) )
+		||  (  ( isset( $_SERVER['HTTP_HOST'] ) ) && ( strpos( sanitize_text_field( wp_unslash($_SERVER['HTTP_HOST'])), 'oplugins.com' ) !== false )  )
 	  ) 
 		return true;
 	else
@@ -90,191 +90,7 @@ function wpbm_get_warning_text_in_demo_mode() {
  *  Link: http://server.com/wp-admin/admin.php?page=wpbm-settings&system_info=show#wpbm_general_settings_system_info_metabox
  */
 function wpbm_system_info() {
-
-   if ( wpbm_is_this_demo() ) return;
-
-   if ( current_user_can( 'activate_plugins' ) ) {                                // Only for Administrator or Super admin. More here: https://codex.wordpress.org/Roles_and_Capabilities
-
-	   global $wpdb, $wp_version;
-
-	   $all_plugins = get_plugins();
-	   $active_plugins = get_option( 'active_plugins' );
-
-	   $mysql_info = $wpdb->get_results( "SHOW VARIABLES LIKE 'sql_mode'" );
-	   if ( is_array( $mysql_info ) )  $sql_mode = $mysql_info[0]->Value;
-	   if ( empty( $sql_mode ) )       $sql_mode = 'Not set';
-
-	   $safe_mode          = ( ini_get( 'safe_mode' ) ) ? 'On' : 'Off';
-	   $allow_url_fopen    = ( ini_get( 'allow_url_fopen' ) ) ?  'On' : 'Off';
-	   $upload_max_filesize = ( ini_get( 'upload_max_filesize' ) ) ? ini_get( 'upload_max_filesize' ) : 'N/A';
-	   $post_max_size      = ( ini_get( 'post_max_size' ) ) ? ini_get( 'post_max_size' ) : 'N/A';
-	   $max_execution_time = ( ini_get( 'max_execution_time' ) ) ? ini_get( 'max_execution_time' ) : 'N/A';
-	   $memory_limit       = ( ini_get( 'memory_limit' ) ) ? ini_get( 'memory_limit' ) : 'N/A';
-	   $memory_usage       = ( function_exists( 'memory_get_usage' ) ) ? round( memory_get_usage() / 1024 / 1024, 2 ) . ' Mb' : 'N/A';
-	   $exif_read_data     = ( is_callable( 'exif_read_data' ) ) ? 'Yes' . " ( V" . substr( phpversion( 'exif' ), 0, 4 ) . ")" : 'No';
-	   $iptcparse          = ( is_callable( 'iptcparse' ) ) ? 'Yes' : 'No';
-	   $xml_parser_create  = ( is_callable( 'xml_parser_create' ) ) ? 'Yes' : 'No';
-	   $theme              = ( function_exists( 'wp_get_theme' ) ) ? wp_get_theme() : get_theme( get_current_theme() );
-
-	   if ( function_exists( 'is_multisite' ) ) {
-		   if ( is_multisite() )   $multisite = 'Yes';
-		   else                    $multisite = 'No';
-	   } else {                    $multisite = 'N/A';
-	   }
-
-	   $system_info = array(
-		   'system_info'      => '',
-		   'php_info'         => '',
-		   'active_plugins'   => array(),            //FixIn: 2.0.25.1
-		   'inactive_plugins' => array()             //FixIn: 2.0.25.1
-	   );
-
-	   $ver_small_name = get_wpbm_version();
-	   if ( class_exists( 'wpbm_multiuser' ) ) $ver_small_name = 'multiuser';
-
-	   $system_info['system_info'] = array(
-		   'Plugin Update'         => ( defined( 'WPBM_VERSION' ) ) ? WPBM_VERSION : 'N/A',
-		   'Plugin Version'        => ucwords( $ver_small_name ),
-		   'Plugin Update Date'   => date( "Y-m-d", filemtime( WPBM_FILE ) ),
-
-		   'WP Version' => $wp_version,
-		   'WP DEBUG'   =>  ( ( defined('WP_DEBUG') ) && ( WP_DEBUG ) ) ? 'On' : 'Off',
-		   'WP DB Version' => get_option( 'db_version' ),
-		   'Operating System' => PHP_OS,
-		   'Server' => $_SERVER["SERVER_SOFTWARE"],
-		   'PHP Version' => PHP_VERSION,
-		   'PHP Safe Mode' => $safe_mode,
-		   'MYSQL Version' => $wpdb->get_var( "SELECT VERSION() AS version" ),
-		   'SQL Mode' => $sql_mode,
-		   'Memory usage' => $memory_usage,
-		   'Site URL' => get_option( 'siteurl' ),
-		   'Home URL' => home_url(),
-		   'SERVER[HTTP_HOST]' => $_SERVER['HTTP_HOST'],
-		   'SERVER[SERVER_NAME]' => $_SERVER['SERVER_NAME'],
-		   'Multisite' => $multisite,
-		   'Active Theme' => $theme['Name'] . ' ' . $theme['Version']
-	   );
-
-	   $system_info['php_info'] = array(
-		   'PHP Version' => PHP_VERSION,
-		   'PHP Safe Mode' => $safe_mode,
-			   'PHP Memory Limit'              => '<strong>' . $memory_limit . '</strong>',
-			   'PHP Max Script Execute Time'   => '<strong>' . $max_execution_time . '</strong>',
-
-			   'PHP Max Post Size'  => '<strong>' . $post_max_size . '</strong>',
-			   'PHP MAX Input Vars' => '<strong>' . ( ( ini_get( 'max_input_vars' ) ) ? ini_get( 'max_input_vars' ) : 'N/A' ) . '</strong>',           //How many input variables may be accepted (limit is applied to $_GET, $_POST and $_COOKIE superglobal separately).                 
-
-		   'PHP Max Upload Size'   => $upload_max_filesize,
-		   'PHP Allow URL fopen'   => $allow_url_fopen,
-		   'PHP Exif support'      => $exif_read_data,
-		   'PHP IPTC support'      => $iptcparse,
-		   'PHP XML support'       => $xml_parser_create            
-	   );
-
-	   $system_info['php_info']['PHP cURL'] =  ( function_exists('curl_init') ) ? 'On' : 'Off';   
-	   $system_info['php_info']['Max Nesting Level'] = ( ( ini_get( 'max_input_nesting_level' ) ) ? ini_get( 'max_input_nesting_level' ) : 'N/A' );   
-	   $system_info['php_info']['Max Time 4 script'] = ( ( ini_get( 'max_input_time' ) ) ? ini_get( 'max_input_time' ) : 'N/A' );                     //Maximum amount of time each script may spend parsing request data
-	   $system_info['php_info']['Log'] =      ( ( ini_get( 'error_log' ) ) ? ini_get( 'error_log' ) : 'N/A' );
-
-	   if ( ini_get( "suhosin.get.max_value_length" ) ) { 
-
-		   $system_info['suhosin_info'] = array();
-		   $system_info['suhosin_info']['POST max_array_index_length']     = ( ( ini_get( 'suhosin.post.max_array_index_length' ) ) ? ini_get( 'suhosin.post.max_array_index_length' ) : 'N/A' );
-		   $system_info['suhosin_info']['REQUEST max_array_index_length']  = ( ( ini_get( 'suhosin.request.max_array_index_length' ) ) ? ini_get( 'suhosin.request.max_array_index_length' ) : 'N/A' );
-
-		   $system_info['suhosin_info']['POST max_totalname_length']    = ( ( ini_get( 'suhosin.post.max_totalname_length' ) ) ? ini_get( 'suhosin.post.max_totalname_length' ) : 'N/A' );
-		   $system_info['suhosin_info']['REQUEST max_totalname_length'] = ( ( ini_get( 'suhosin.request.max_totalname_length' ) ) ? ini_get( 'suhosin.request.max_totalname_length' ) : 'N/A' );
-
-		   $system_info['suhosin_info']['POST max_vars']               = ( ( ini_get( 'suhosin.post.max_vars' ) ) ? ini_get( 'suhosin.post.max_vars' ) : 'N/A' );
-		   $system_info['suhosin_info']['REQUEST max_vars']            = ( ( ini_get( 'suhosin.request.max_vars' ) ) ? ini_get( 'suhosin.request.max_vars' ) : 'N/A' );
-
-		   $system_info['suhosin_info']['POST max_value_length']       = ( ( ini_get( 'suhosin.post.max_value_length' ) ) ? ini_get( 'suhosin.post.max_value_length' ) : 'N/A' );
-		   $system_info['suhosin_info']['REQUEST max_value_length']    = ( ( ini_get( 'suhosin.request.max_value_length' ) ) ? ini_get( 'suhosin.request.max_value_length' ) : 'N/A' );
-
-		   $system_info['suhosin_info']['POST max_name_length']        = ( ( ini_get( 'suhosin.post.max_name_length' ) ) ? ini_get( 'suhosin.post.max_name_length' ) : 'N/A' );
-		   $system_info['suhosin_info']['REQUEST max_varname_length']  = ( ( ini_get( 'suhosin.request.max_varname_length' ) ) ? ini_get( 'suhosin.request.max_varname_length' ) : 'N/A' );
-
-		   $system_info['suhosin_info']['POST max_array_depth']        = ( ( ini_get( 'suhosin.post.max_array_depth' ) ) ? ini_get( 'suhosin.post.max_array_depth' ) : 'N/A' );            
-		   $system_info['suhosin_info']['REQUEST max_array_depth']     = ( ( ini_get( 'suhosin.request.max_array_depth' ) ) ? ini_get( 'suhosin.request.max_array_depth' ) : 'N/A' );
-	   }
-
-
-	   if ( function_exists('gd_info') ) {
-		   $gd_info = gd_info();
-		   if ( isset( $gd_info['GD Version'] ) )
-			   $gd_info = $gd_info['GD Version'];
-		   else 
-			   $gd_info = json_encode( $gd_info );
-	   } else {
-		   $gd_info = 'Off';
-	   }
-	   $system_info['php_info']['PHP GD'] = $gd_info;
-
-	   // More here https://docs.woocommerce.com/document/problems-with-large-amounts-of-data-not-saving-variations-rates-etc/
-
-
-		foreach ( $all_plugins as $path => $plugin ) {
-
-			if ( is_plugin_active( $path ) ) {
-				$system_info['active_plugins'][ $plugin['Name'] ] = $plugin['Version'];
-			} else {
-				$system_info['inactive_plugins'][ $plugin['Name'] ] = $plugin['Version'];
-			}
-		}
-
-	   // Showing
-	   foreach ( $system_info as $section_name => $section_values ) {
-		   ?>
-		   <span class="wpdevelop">
-		   <table class="table table-striped table-bordered">
-			   <thead><tr><th colspan="2" style="border-bottom: 1px solid #eeeeee;padding: 10px;"><?php echo strtoupper( $section_name ); ?></th></tr></thead>
-			   <tbody>
-			   <?php 
-			   if ( !empty( $section_values ) ) {
-				   foreach ( $section_values as $key => $value ) {
-					   ?>
-					   <tr>
-						   <td scope="row" style="width:18em;padding:4px 8px;"><?php echo $key; ?></td>
-						   <td scope="row" style="padding:4px 8px;"><?php echo $value; ?></td>
-					   </tr>
-					   <?php                 
-				   }
-			   }
-			   ?>
-			   </tbody>
-		   </table>
-		   </span>
-		   <div class="clear"></div>
-		   <?php
-	   }
-?>
-<hr>            
-<div style="color:#777;">
-<h4 style="font-size:1.1em;">Commonly required configuration vars in php.ini file:</h4>            
-<h4>General section:</h4>            
-<pre><code>memory_limit = 256M
-max_execution_time = 120
-post_max_size = 8M
-upload_max_filesize = 8M
-max_input_vars = 20480
-post_max_size = 64M</code></pre>  
-<h4>Suhosin section (if installed):</h4>
-<pre><code>suhosin.post.max_array_index_length = 1024
-suhosin.post.max_totalname_length = 65535
-suhosin.post.max_vars = 2048
-suhosin.post.max_value_length = 1000000
-suhosin.post.max_name_length = 256
-suhosin.post.max_array_depth = 1000
-suhosin.request.max_array_index_length = 1024
-suhosin.request.max_totalname_length = 65535
-suhosin.request.max_vars = 2048
-suhosin.request.max_value_length = 1000000
-suhosin.request.max_varname_length = 256
-suhosin.request.max_array_depth = 1000</code></pre> 
-</div>
-<?php 
-	   // phpinfo();        
-   }
+	echo '---';
 }
 
 
@@ -434,7 +250,7 @@ function wpbm_esc_to_plain_text( $string ) {
 							' '                                             // Runs of spaces, post-handling
 				);		
 
-	$newstring = preg_replace( $plain_search_array, $get_plain_replace_array, strip_tags( $string ) );
+	$newstring = preg_replace( $plain_search_array, $get_plain_replace_array, wp_strip_all_tags( $string ) );
 
 	return $newstring;
 }
@@ -464,6 +280,8 @@ function wpbm_replace_shortcodes( $subject, $replace_array , $replace_unknown_sh
     $replace = wp_parse_args( $replace_array, $defaults );
 
     foreach ( $replace as $replace_shortcode => $replace_value ) {
+
+		$replace_value = esc_js( $replace_value );        // FixIn:
 
         $subject = str_replace( array(   '[' . $replace_shortcode . ']'
                                        , '{' . $replace_shortcode . '}' )
@@ -615,13 +433,13 @@ if (!function_exists ('get_file_data_wpdev')) {
 	 */
 	function get_file_data_wpdev( $file, $default_headers, $context = '' ) {
         // We don't need to write to the file, so just open for reading.
-        $fp = fopen( $file, 'r' );
+        $fp = fopen( $file, 'r' );		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 
         // Pull only the first 8kiB of the file in.
-        $file_data = fread( $fp, 8192 );
+        $file_data = fread( $fp, 8192 );// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
 
         // PHP will close file handle, but we are good citizens.
-        fclose( $fp );
+        fclose( $fp );// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
         if( $context != '' ) {
             $extra_headers = array();								//apply_filters( "extra_$context".'_headers', array() );
@@ -844,11 +662,11 @@ function wpbm_get_settings_url( $is_absolute_url = true ) {
  */
 function wpbm_is_master_page( $server_param = 'REQUEST_URI' ) { 
 
-	if (  ( is_admin() ) &&
-		  ( strpos($_SERVER[ $server_param ],'page=oplugins') !== false ) &&
-		  ( strpos($_SERVER[ $server_param ],'tab=wpbm-') === false ) &&		// not the settings
-		  (	   ( strpos($_SERVER[ $server_param ],'tab=wpbm') !== false )		// tab specified
-			|| ( strpos($_SERVER[ $server_param ],'tab=') === false )  )		// or tab not specified at all
+	if (  ( is_admin() ) && isset($_SERVER[ $server_param ]) &&
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'page=oplugins') !== false ) &&  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm-') === false ) &&		// not the settings   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		  (	   ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm') !== false )		// tab specified   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			|| ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=') === false )  )		// or tab not specified at all   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
 	} 
@@ -861,9 +679,9 @@ function wpbm_is_master_page( $server_param = 'REQUEST_URI' ) {
  */
 function wpbm_is_new_wpbm_page( $server_param = 'REQUEST_URI' ) {
 
-	if (  ( is_admin() ) &&
-		  ( strpos($_SERVER[ $server_param ],'page=oplugins') !== false ) &&	
-		  ( strpos($_SERVER[ $server_param ],'tab=wpbm-new') !== false )
+	if (  ( is_admin() ) && isset($_SERVER[ $server_param ]) &&
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'page=oplugins') !== false ) &&   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm-new') !== false )   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
 	} 
@@ -877,9 +695,9 @@ function wpbm_is_new_wpbm_page( $server_param = 'REQUEST_URI' ) {
  */    
 function wpbm_is_settings_page( $server_param = 'REQUEST_URI' ) {
 
-	if (  ( is_admin() ) &&
-		  ( strpos($_SERVER[ $server_param ],'page=oplugins') !== false ) &&	
-		  ( strpos($_SERVER[ $server_param ],'tab=wpbm-settings') !== false )
+	if (  ( is_admin() ) && isset($_SERVER[ $server_param ]) &&
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'page=oplugins') !== false ) &&   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm-settings') !== false )   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
 	} 
@@ -996,24 +814,7 @@ function wp_admin_bar_items_menu(){
 /** Show Rating link at footer */
 function wpbm_show_wpbm_footer(){ 
 
-	if ( ! wpbm_is_this_demo() ) {
-
-		$message = sprintf( __( 'If you like %s please leave us a %s rating. A huge thank you in advance!', 'booking-manager')
-							, '<strong>Booking Manager</strong>' . ' ' . WPBM_VERSION_NUM  
-							, '<a href="https://wordpress.org/support/plugin/booking-manager/reviews/#new-post" target="_blank" title="' . esc_attr__( 'Thanks :)', 'booking-manager') . '">'
-								. '&#9733;&#9733;&#9733;&#9733;&#9733;' 
-								. '</a>' 
-						);            
-
-		echo '<div id="wpbm-footer" style="position:absolute;bottom:40px;text-align:left;width:95%;font-size:0.9em;text-shadow:0 1px 0 #fff;margin:0;color:#888;">' . $message . '</div>';
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function(){
-				jQuery('#wpfooter').append( jQuery('#wpbm-footer') );
-			});
-		</script>
-		<?php
-	}
+	// Nothing here.
 }
 //                                                                              </editor-fold>    
     
@@ -1034,23 +835,15 @@ function wpbm_is_table_exists( $tablename ) {
 
 	global $wpdb;
 
-	if ( (! empty($wpdb->prefix) ) && ( strpos($tablename, $wpdb->prefix) === false ) ) 
-		$tablename = $wpdb->prefix . $tablename ;
+	if ( ( ! empty( $wpdb->prefix ) ) && ( strpos( $tablename, $wpdb->prefix ) === false ) ) {
+		$tablename = $wpdb->prefix . $tablename;
+	}
 
-	$sql_check_table = $wpdb->prepare("SHOW TABLES LIKE %s" , $tablename ); //FixIn 5.4.3
 
-	$res = $wpdb->get_results( $sql_check_table );
 
-	return count($res);                                                     //FixIn 5.4.3
-	/*
-	$sql_check_table = $wpdb->prepare("
-		SELECT COUNT(*) AS count
-		FROM information_schema.tables
-		WHERE table_schema = '". DB_NAME ."'
-		AND table_name = %s " , $tablename );
+	$res = $wpdb->get_results( $wpdb->prepare( "SHOW TABLES LIKE %s", $tablename ) );    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-	$res = $wpdb->get_results( $sql_check_table );
-	return $res[0]->count;*/
+	return count( $res );                                                     //FixIn 5.4.3.
 }
 
 
@@ -1067,7 +860,7 @@ function wpbm_is_field_in_table_exists( $tablename , $fieldname) {
 	if ( (! empty($wpdb->prefix) ) && ( strpos($tablename, $wpdb->prefix) === false ) ) $tablename = $wpdb->prefix . $tablename ;
 	$sql_check_table = "SHOW COLUMNS FROM {$tablename}" ;
 
-	$res = $wpdb->get_results( $sql_check_table );
+	$res = $wpdb->get_results( $sql_check_table ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
 	foreach ($res as $fld) {
 		if ($fld->Field == $fieldname) return 1;
@@ -1088,8 +881,8 @@ function wpbm_is_field_in_table_exists( $tablename , $fieldname) {
 function wpbm_is_index_in_table_exists( $tablename , $fieldindex) {
 	global $wpdb;
 	if ( (! empty($wpdb->prefix) ) && ( strpos($tablename, $wpdb->prefix) === false ) ) $tablename = $wpdb->prefix . $tablename ;
-	$sql_check_table = $wpdb->prepare("SHOW INDEX FROM {$tablename} WHERE Key_name = %s", $fieldindex );       
-	$res = $wpdb->get_results( $sql_check_table );
+
+	$res = $wpdb->get_results( $wpdb->prepare("SHOW INDEX FROM {$tablename} WHERE Key_name = %s", $fieldindex ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	if (count($res)>0) return 1;
 	else               return 0;
 }
@@ -1113,15 +906,15 @@ function wpbm_get_params_in_url( $page_param , $exclude_params = array(), $only_
 
 	$exclude_params[] = 'page';
 
-	if ( isset( $_GET['page'] ) ) 
-		$page_param = $_GET['page'];
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	if ( isset( $_GET['page'] ) ) { $page_param = $_GET['page']; }
 
 	$get_paramaters = array( 'page' => $page_param );
 
 	if ( $only_get )
-		$check_params = $_GET;
+		$check_params = $_GET;  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	else 
-		$check_params = $_REQUEST;
+		$check_params = $_REQUEST;  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 //debuge($check_params);    
 	foreach ( $check_params as $prm_key => $prm_value ) {
 
@@ -1186,7 +979,7 @@ function wpbm_check_request_paramters() {
 		// elements only listed in array::
 		if (  is_array( $clean_type ) ) {                                       // check  only values from  the list  in this array
 
-			if ( ( isset( $_REQUEST[ $request_key ] ) ) &&  ( ! in_array( $_REQUEST[ $request_key ], $clean_type ) ) )
+			if ( ( isset( $_REQUEST[ $request_key ] ) ) &&  ( ! in_array( $_REQUEST[ $request_key ], $clean_type ) ) )  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$clean_type = 's';    
 			else 
 				$clean_type = 'checked_skip_it';
@@ -1199,34 +992,32 @@ function wpbm_check_request_paramters() {
 				break;
 
 			case 'digit_or_date':                                            // digit or comma separated digit
-				if ( isset( $_REQUEST[ $request_key ] ) ) 
-					$_REQUEST[ $request_key ] = wpbm_clean_digit_or_date( $_REQUEST[ $request_key ] );        // nums    
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if ( isset( $_REQUEST[ $request_key ] ) ) { $_REQUEST[ $request_key ] = wpbm_clean_digit_or_date( $_REQUEST[ $request_key ] ); }        // nums
 
 				break;
 
 			case 'digit_or_csd':                                            // digit or comma separated digit
-				if ( isset( $_REQUEST[ $request_key ] ) ) 
-					$_REQUEST[ $request_key ] = wpbm_clean_digit_or_csd( $_REQUEST[ $request_key ] );        // nums    
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if ( isset( $_REQUEST[ $request_key ] ) ) { $_REQUEST[ $request_key ] = wpbm_clean_digit_or_csd( $_REQUEST[ $request_key ] ); }       // nums
 
 				break;
 
 			case 's':                                                       // string
-				if ( isset( $_REQUEST[ $request_key ] ) ) 
-					$_REQUEST[ $request_key ] = wpbm_clean_like_string_for_db( $_REQUEST[ $request_key ] );
+				 // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if ( isset( $_REQUEST[ $request_key ] ) ) { $_REQUEST[ $request_key ] = wpbm_clean_like_string_for_db( $_REQUEST[ $request_key ] ); }
 
 				break;
 
 			case 'd':                                                       // digit
-				if ( isset( $_REQUEST[ $request_key ] ) ) 
-					if ( $_REQUEST[ $request_key ] !== '' )
-						$_REQUEST[ $request_key ] = intval( $_REQUEST[ $request_key ] );
+				 // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if (( isset( $_REQUEST[ $request_key ] ) ) && ( $_REQUEST[ $request_key ] !== '' )) { $_REQUEST[ $request_key ] = intval( $_REQUEST[ $request_key ] ); }
 
 				break;
 
 			default:
-				if ( isset( $_REQUEST[ $request_key ] ) ) {
-					$_REQUEST[ $request_key ] = intval( $_REQUEST[ $request_key ] );                    
-				}
+				        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if ( isset( $_REQUEST[ $request_key ] ) ) { $_REQUEST[ $request_key ] = intval( $_REQUEST[ $request_key ] ); }
 				break;
 		}
 
@@ -1306,7 +1097,7 @@ function wpbm_clean_parameter( $value ) {
 	$value = preg_replace( '/<[^>]*>/', '', $value );                       // clean any tags
 	$value = str_replace( '<', ' ', $value ); 
 	$value = str_replace( '>', ' ', $value ); 
-	$value = strip_tags( $value );
+	$value = wp_strip_all_tags( $value );
 
 	// Clean SQL injection    
 	$value = esc_sql( $value );
@@ -1338,9 +1129,9 @@ function wpbm_clean_like_string_for_append_in_sql_for_db( $value ) {
 	global $wpdb;
 
 	$value_trimmed = trim( stripslashes( $value ) );
-$wild = '%';	
-$like = $wild . wpbm_esc_like( $value_trimmed ) . $wild;
-$sql  = $wpdb->prepare( "'%s'", $like );
+	$wild          = '%';
+	$like          = $wild . wpbm_esc_like( $value_trimmed ) . $wild;
+	$sql           = $wpdb->prepare( "'%s'", $like );  // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder
 
 	return $sql;    
 
@@ -1383,7 +1174,7 @@ function wpbm_clean_like_string_for_db( $value ){
 
 	$value_trimmed =  wpbm_esc_like( $value_trimmed );
 
-	$value = trim( $wpdb->prepare( "'%s'",  $value_trimmed ) , "'" );
+	$value = trim( $wpdb->prepare( "'%s'",  $value_trimmed ) , "'" ); // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder
 
 	return $value;
 
@@ -1470,27 +1261,7 @@ function wpbm_is_current_user_have_this_role( $user_role ) {
 
 
 function wpbm_get_user_ip() {
-//return '84.243.195.114'  ;                    // Test     //90.36.89.174
-	if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-			$userIP = $_SERVER['HTTP_CLIENT_IP'] ;
-	} elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			$userIP = $_SERVER['HTTP_X_FORWARDED_FOR'] ;
-	} elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
-			$userIP = $_SERVER['HTTP_X_FORWARDED'] ;
-	} elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
-			$userIP = $_SERVER['HTTP_FORWARDED_FOR'] ; 
-	} elseif (isset($_SERVER['HTTP_FORWARDED'])) {
-			$userIP = $_SERVER['HTTP_FORWARDED'] ;
-	} elseif (isset($_SERVER['REMOTE_ADDR'])) {
-			$userIP = $_SERVER['REMOTE_ADDR'] ;
-	} else {
-			$userIP = "" ;
-	}
-
-	$userIP = explode( ',', $userIP );
-	$userIP = array_map( 'trim', $userIP );
-
-	return $userIP[0] ;
+	return '---';
 }
 add_wpbm_filter( 'wpbm_get_user_ip', 'wpbm_get_user_ip' );
 //                                                                              </editor-fold>
@@ -1505,7 +1276,7 @@ function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'upd
 
 		// Generate unique HTML ID  for the message
 		if ( $notice_id == 0 )
-			$notice_id =  intval( time() * rand(10, 100) );
+			$notice_id =  intval( time() * wp_rand(10, 100) );
 
 		$notice_id = 'wpbm_system_notice_' . $notice_id;
 
@@ -1517,15 +1288,15 @@ function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'upd
 			 // || true 
 		){
 
-			?><div  id="<?php echo $notice_id; ?>" 
-					class="wpbm_system_notice wpbm_is_dismissible wpbm_is_hideable <?php echo $message_type; ?>"
-					data-nonce="<?php echo wp_create_nonce( $nonce_name = $notice_id . '_wpbmnonce' ); ?>"	
-					data-user-id="<?php echo get_current_user_id(); ?>"
+			?><div  id="<?php echo esc_attr($notice_id); ?>"
+					class="wpbm_system_notice wpbm_is_dismissible wpbm_is_hideable <?php echo esc_attr( $message_type ); ?>"
+					data-nonce="<?php echo esc_attr(wp_create_nonce( $nonce_name = $notice_id . '_wpbmnonce' )); ?>"
+					data-user-id="<?php echo esc_attr(get_current_user_id()); ?>"
 				><?php 
 
 			wpbm_x_dismiss_button();
 
-			echo $message;
+			echo wp_kses_post($message);
 
 			?></div><?php
 
@@ -1534,7 +1305,7 @@ function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'upd
 
 			 if ( $time_to_show > 0 ) { 
 				?> <script type="text/javascript">                              				
-						jQuery('#<?php echo $notice_id; ?>').animate({opacity: 1},<?php echo $time_to_show; ?>).fadeOut( 2000 );								
+						jQuery('#<?php echo esc_attr($notice_id); ?>').animate({opacity: 1},<?php echo esc_attr( $time_to_show ); ?>).fadeOut( 2000 );
 				</script> <?php
 			 }			
 		}       	
@@ -1556,8 +1327,8 @@ function wpbm_show_ajax_message( $message, $time_to_show = 3000, $is_error = fal
 	$notice =   html_entity_decode( esc_js( $message ) ,ENT_QUOTES) ;
 
 	?><script type="text/javascript">
-		var my_message = '<?php echo $notice; ?>';
-		wpbm_admin_show_message( my_message, '<?php echo ( $is_error ? 'error' : 'success' ); ?>', <?php echo $time_to_show; ?> );                                                                      
+		var my_message = '<?php echo esc_js( $notice ); ?>';
+		wpbm_admin_show_message( my_message, '<?php echo ( $is_error ? 'error' : 'success' ); ?>', <?php echo esc_attr($time_to_show); ?> );
 	</script><?php
 }
 
@@ -1579,7 +1350,7 @@ function wpbm_show_changes_saved_message() {
 function wpbm_show_message ( $message, $time_to_show , $message_type = 'updated') {
 
 	// Generate unique HTML ID  for the message
-	$inner_message_id =  intval( time() * rand(10, 100) );
+	$inner_message_id =  intval( time() * wp_rand(10, 100) );
 
 	// Get formated HTML message
 	$notice = wpbm_get_formated_message( $message, $message_type, $inner_message_id );
@@ -1590,9 +1361,12 @@ function wpbm_show_message ( $message, $time_to_show , $message_type = 'updated'
 	// Show this Message
 	?> <script type="text/javascript">                              
 		if ( jQuery('.wpbm_admin_message').length ) {
-				jQuery('.wpbm_admin_message').append( '<?php echo $notice; ?>' );
+				jQuery('.wpbm_admin_message').append( '<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo ($notice);
+					?>' );
 			<?php if ( $time_to_show > 0 ) { ?>
-				jQuery('#wpbm_inner_message_<?php echo $inner_message_id; ?>').animate({opacity: 1},<?php echo $time_to_show; ?>).fadeOut( 2000 );
+				jQuery('#wpbm_inner_message_<?php echo esc_attr($inner_message_id); ?>').animate({opacity: 1},<?php echo esc_attr($time_to_show); ?>).fadeOut( 2000 );
 			<?php } ?>
 		}
 	</script> <?php
@@ -1652,7 +1426,7 @@ function wpbm_show_message_in_settings( $message, $message_type = 'info', $title
 	$message_content .= '<div class="clear"></div>';
 
 	if ( $is_echo )
-		echo $message_content;
+		echo wp_kses_post( $message_content );
 	else
 		return $message_content;
 
@@ -1671,15 +1445,15 @@ function wpbm_open_meta_box_section( $metabox_id, $title ) {
     ?>
     <div class='meta-box'>
         <div
-                id="<?php echo $my_close_open_win_id; ?>"
+                id="<?php echo esc_attr($my_close_open_win_id); ?>"
                 class="postbox <?php if ( '1' == get_user_option( 'wpbm_win_' . $my_close_open_win_id ) ) echo 'closed'; ?>"
             ><div class="postbox-header" style="display: flex;flex-flow: row nowrap;border-bottom: 1px solid #ccd0d4;"><?php //FixIn: 8.7.8.1 ?>
 				<h3 class='hndle' style="flex: 1 1 auto;border: none;">
                   <span><?php  echo wp_kses_post( $title ); ?></span>
 			  	</h3>
-				<div  title="<?php _e('Click to toggle','booking-manager'); ?>"
+				<div  title="<?php echo esc_attr(__('Click to toggle','booking-manager')); ?>"
                     class="handlediv"
-                    onclick="javascript:wpbm_verify_window_opening(<?php echo get_wpbm_current_user_id(); ?>, '<?php echo $my_close_open_win_id; ?>');"
+                    onclick="javascript:wpbm_verify_window_opening(<?php echo esc_attr( get_wpbm_current_user_id() ); ?>, '<?php echo esc_attr($my_close_open_win_id); ?>');"
                 ><br/></div>
 			</div>
             <div class="inside">
@@ -1749,7 +1523,7 @@ function wpbm_print_js() {
 		$wpbm_queued_js = preg_replace( '/&#(x)?0*(?(1)27|39);?/i', "'", $wpbm_queued_js );
 		$wpbm_queued_js = str_replace( "\r", '', $wpbm_queued_js );
 
-		echo $wpbm_queued_js . "});\n</script>\n<!-- End WPBM JavaScript -->\n";
+		echo $wpbm_queued_js . "});\n</script>\n<!-- End WPBM JavaScript -->\n";	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$wpbm_queued_js = '';
 		unset( $wpbm_queued_js );
@@ -1903,7 +1677,7 @@ function wpbm_reload_page_by_js( $url ) {
 	if ( ! empty( $redir ) ) {
 		?>
 		<script type="text/javascript">                
-			window.location.href = '<?php echo $redir ?>';                
+			window.location.href = '<?php echo esc_url($redir); ?>';
 		</script>
 		<?php
 	}
@@ -1921,10 +1695,10 @@ function wpbm_redirect( $url ) {
 	$url = html_entity_decode( esc_url( $url ) );
 
 	echo '<script type="text/javascript">';
-	echo 'window.location.href="'.$url.'";';
+	echo 'window.location.href="'.esc_url($url).'";';
 	echo '</script>';
 	echo '<noscript>';
-	echo '<meta http-equiv="refresh" content="0;url='.$url.'" />';
+	echo '<meta http-equiv="refresh" content="0;url='.esc_url($url).'" />';
 	echo '</noscript>';
 }
 //                                                                              </editor-fold>
@@ -1950,9 +1724,8 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 		return;
 
 			//Fix: 5.1.4 - Just in case we are having tooo much  resources, then we need to show all resources - and its empty string
-			if ( ( isset($_REQUEST['wh_wpbm_type'] ) ) && ( strlen($_REQUEST['wh_wpbm_type']) > 1000 ) ) {                   
-				$_REQUEST['wh_wpbm_type'] = '';            
-			}  
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash,  	WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( ( isset($_REQUEST['wh_wpbm_type'] ) ) && ( strlen($_REQUEST['wh_wpbm_type']) > 1000 ) ) { $_REQUEST['wh_wpbm_type'] = ''; }
 
 	// First  parameter  will overwriten by $_GET['page'] parameter
 	$bk_admin_url = wpbm_get_params_in_url( wpbm_get_master_url( false ), array('page_num'), $only_these_parameters );
@@ -1968,8 +1741,8 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 
 						<?php if ( $pages_number > 1 ) { ?>
 								<a class="button button-secondary <?php echo ( $active_page_num == 1 ) ? ' disabled' : ''; ?>" 
-								   href="<?php echo $bk_admin_url; ?>&page_num=<?php if ($active_page_num == 1) { echo $active_page_num; } else { echo ($active_page_num-1); } echo $url_sufix; ?>">
-									<?php _e('Prev', 'booking-manager'); ?>
+								   href="<?php echo esc_url($bk_admin_url); ?>&page_num=<?php if ($active_page_num == 1) { echo esc_attr( $active_page_num ); } else { echo esc_attr($active_page_num-1); } echo esc_attr( $url_sufix ); ?>">
+									<?php esc_html_e('Prev', 'booking-manager'); ?>
 								</a>
 						<?php } 
 
@@ -1985,8 +1758,8 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 										&& (  abs( $active_page_num - $pg_num ) > $num_closed_steps )  
 								   ) ) {
 									?> <a class="button button-secondary <?php if ($pg_num == $active_page_num ) echo ' active'; ?>" 
-										 href="<?php echo $bk_admin_url; ?>&page_num=<?php echo $pg_num;  echo $url_sufix; ?>">
-										<?php echo $pg_num; ?>
+										 href="<?php echo esc_attr( $bk_admin_url ); ?>&page_num=<?php echo esc_attr( $pg_num);  echo esc_attr( $url_sufix); ?>">
+										<?php echo esc_html($pg_num); ?>
 									  </a><?php 
 
 									if ( ( $pages_number > ( $num_closed_steps * 4) ) 
@@ -2001,8 +1774,8 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 
 						if ( $pages_number > 1 ) { ?>
 								<a class="button button-secondary <?php echo ( $active_page_num == $pages_number ) ? ' disabled' : ''; ?>" 
-								   href="<?php echo $bk_admin_url; ?>&page_num=<?php  if ($active_page_num == $pages_number) { echo $active_page_num; } else { echo ($active_page_num+1); }  echo $url_sufix; ?>">
-									<?php _e('Next', 'booking-manager'); ?>
+								   href="<?php echo esc_attr( $bk_admin_url ); ?>&page_num=<?php  if ($active_page_num == $pages_number) { echo esc_attr( $active_page_num); } else { echo esc_attr($active_page_num+1); }  echo esc_attr( $url_sufix); ?>">
+									<?php esc_html_e('Next', 'booking-manager'); ?>
 								</a>
 						<?php } ?>
 

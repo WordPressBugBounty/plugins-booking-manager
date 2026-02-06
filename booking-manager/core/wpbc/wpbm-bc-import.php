@@ -487,7 +487,8 @@ function wpbm_ics_import_start( $attr ) {
 			$is_dates_booked = false;
 			$additional_params['save_booking_even_if_unavailable'] = 1;
 		}
-		$additional_params['is_use_booking_recurrent_time'] = false;
+		// $additional_params['is_use_booking_recurrent_time'] = false;  // FixIn: 2.1.17.1.
+		$additional_params['is_use_booking_recurrent_time'] = ( 'On' === get_bk_option( 'booking_recurrent_time' ) );
 
 		if ( ! $is_dates_booked ) {
 

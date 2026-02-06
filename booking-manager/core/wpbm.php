@@ -235,14 +235,14 @@ if (0)
     // Cloning instances of the class is forbidden
     public function __clone() {
 
-        _doing_it_wrong( __FUNCTION__, __( 'Action is not allowed!' ), '1.0' );
+        _doing_it_wrong( __FUNCTION__, esc_html__( 'Action is not allowed!', 'booking-manager' ), '1.0' );
     }
 
     
     // Unserializing instances of the class is forbidden
     public function __wakeup() {
 
-        _doing_it_wrong( __FUNCTION__, __( 'Action is not allowed!' ), '1.0' );
+        _doing_it_wrong( __FUNCTION__, esc_html__( 'Action is not allowed!', 'booking-manager' ), '1.0' );
     }
 
     
@@ -273,8 +273,8 @@ else:   // Its seems that  some instance of Booking Manager still activted!!!
     function wpbm_show_activation_error() {
 
         $message_type = 'error';
-        $title        = __( 'Error' , 'booking-manager') . '!';
-        $message      = __( 'Please deactivate previous old version of' , 'booking-manager') . ' ' . 'booking-manager';
+        $title        = esc_html__( 'Error' , 'booking-manager') . '!';
+        $message      = esc_html__( 'Please deactivate previous old version of' , 'booking-manager') . ' ' . 'booking-manager';
         
         $wpbm_version_num = get_option( 'wpbm_version_num');        
         if ( ! empty( $wpbm_version_num ) )
@@ -286,14 +286,14 @@ else:   // Its seems that  some instance of Booking Manager still activted!!!
         if ( $is_delete_if_deactive == 'On' ) { 
             
             $message .= '<br/><br/> <strong>Warning!</strong> ' . 'All plugin data will be deleted when plugin had deactivated.' . ' '
-                . sprintf( 'If you want to save your plugin data, please uncheck the %s"Delete plugin data"%s at the', '<strong>', '</strong>') . ' ' . __( 'Settings' , 'booking-manager') . '.';
+                . sprintf( 'If you want to save your plugin data, please uncheck the %s"Delete plugin data"%s at the', '<strong>', '</strong>') . ' ' . esc_html__( 'Settings' , 'booking-manager') . '.';
         }
         
         $message_content = '';
 
         $message_content .= '<div class="clear"></div>';
 
-        $message_content .= '<div class="updated wpbm-settings-notice notice-' . $message_type . ' ' . $message_type . '" style="text-align:left;padding:10px;">';
+        $message_content .= '<div class="updated wpbm-settings-notice notice-' . esc_attr( $message_type ) . ' ' . esc_attr( $message_type ) . '" style="text-align:left;padding:10px;">';
 
         if ( ! empty( $title ) )
         $message_content .=  '<strong>' . esc_js( $title ) . '</strong> ';
@@ -304,7 +304,7 @@ else:   // Its seems that  some instance of Booking Manager still activted!!!
 
         $message_content .= '<div class="clear"></div>';
         
-        echo $message_content;
+        echo $message_content;   // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }    
     
     add_action('admin_notices', 'wpbm_show_activation_error');    
@@ -328,58 +328,3 @@ function WPBM() {
 // Start
 WPBM();
 
-
-
-//if (  ! defined( 'SAVEQUERIES') ) define('SAVEQUERIES', true);
-
- //add_action( 'admin_footer', 'wpbm_show_debug_info', 130 ); 
-function wpbm_show_debug_info() {
-    
-    $request_uri = $_SERVER['REQUEST_URI'];                                 // FixIn:5.4.1
-    if ( strpos( $request_uri, 'page=wpbm') === false ) {
-        return;
-    }
-    echo '<div style="width:800px;margin:10px auto;"><style type="text/css"> a:link{background: inherit !important; } pre { white-space: pre-wrap; }</style>'; 
-    
-phpinfo();  echo '</div>'; return;
-    
-    ?><div style="width:auto;margin:0 0 0 215px;font-size:11px;    "><?php 
-
-// SYSTEM  INFO SHOWING ////////////////////////////////////////////////////////
-    
-    //Note firstly  need to  define this in functions.php file:   define('SAVEQUERIES', true);
-    global $wpdb;
-    echo '<div class="clear"></div>START SYSTEM<pre>';
-        $qq_kk = 0;
-        $total_time = 0;
-        $total_num = 0;
-        foreach ( $wpdb->queries as $qq_k => $qq ) {
-            if ( 
-                       ( strpos( $qq[0], 'booking-manager') !== false ) 
-
-                ) {
-                if ( $qq[1] > 0.002 ) { echo '<div style="color:#A77;font-weight:bold;">'; }
-                debuge($qq_kk++, $qq);
-                $total_time += $qq[1];
-                $total_num++;
-                if ( $qq[1] > 0.002 ) { echo '</div>'; }
-            }
-        }
-
-        echo '<div><pre class="prettyprint linenums" style="font-size:18px;">[' . $total_num . '/' . $total_time . '] WPBM Requests TOTAL TIME</pre></div>';
-    
-        echo '<div class="clear"></div>'; 
-
-        echo '<div><pre class="prettyprint linenums" style="font-size:18px;">' . get_num_queries(). '/'  . timer_stop(0, 3) . 'qps</pre></div>';
-        
-        echo '<div class="clear"></div>'; 
-            
-    echo "</pre>";
-    ?><br/><br/><br/><br/><br/><br/><?php
-    echo '<div class="clear"></div>'; 
-
-////////////////////////////////////////////////////////////////////////////////
-    ?></div><?php
-    
-    echo '</div>';
-}

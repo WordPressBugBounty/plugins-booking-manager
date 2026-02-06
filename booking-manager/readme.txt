@@ -4,8 +4,8 @@ Donate link: https://oplugins.com/plugins/booking-manager
 Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
-Tested up to: 6.8
-Stable tag: 2.1.16
+Tested up to: 6.9
+Stable tag: 2.1.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,12 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.18 =
+* **Fix** Fix XSS during listing of .ics feed content, if the .ics file was broken or intentionaly inject by malicious script. (2.1.18.1)
+
+= 2.1.17 =
+* **Fix** If enabled "Use selected times for each booking date" option  on the WP Booking Calendar > Settings > Calendar > Calendar Settings page,  system  imports time slots,  instead of check  in/out times for such  bookings. (2.1.17.1)
+
 = 2.1.16 =
 * **Fix** Timed events where end <= start (equal or earlier, e.g., due to a bug or reversed inputs) -> you now get a minimal valid span of +1 hour. Previously this produced invalid ICS (“DTEND before DTSTART”).
 * **Fix** All-day events where end ≤ start -> coerced to +1 day (exclusive end), which matches iCal semantics for single-day all-day events.
