@@ -68,29 +68,37 @@ class WPBM_Page_SettingsListing extends WPBM_Page_Structure {
 
 	    
     public function content() {
-        
+
+		if ( ! $this->can_manage_listing_template() ) {
+			wp_die(
+				  esc_html__( 'Sorry, you are not allowed to manage the Booking Manager listing template.', 'booking-manager' )
+				, esc_html__( 'Forbidden', 'booking-manager' )
+				, array( 'response' => 403 )
+			);
+		}
+
         do_action( 'wpbm_hook_settings_page_header', array( 'page' => $this->in_page() ) );								// Define Notices Section and show some static messages, if needed.
-		
-		//////////////////////////////////////////////////////////////////////// 
+
+		////////////////////////////////////////////////////////////////////////
         // Submit  /////////////////////////////////////////////////////////////
-        
+
         $submit_form_name = 'wpbm_form_listing';                             // Define form name
-                
+
         if ( isset( $_POST['is_form_sbmitted_'. $submit_form_name ] ) ) {
 
             // Nonce checking    {Return false if invalid, 1 if generated between, 0-12 hours ago, 2 if generated between 12-24 hours ago. }
             $nonce_gen_time = check_admin_referer( 'wpbm_settings_page_' . $submit_form_name  );  // Its stop show anything on submiting, if its not refear to the original page
 
-            // Save Changes 
+            // Save Changes
             $this->update();
-        }                
+        }
 
         ////////////////////////////////////////////////////////////////////////
-        // Get Data from DB ////////////////////////////////////////////////////                
-        $data_list_tmpl       =  get_wpbm_option( 'wpbm_listing_template' );                 
+        // Get Data from DB ////////////////////////////////////////////////////
+        $data_list_tmpl       =  get_wpbm_option( 'wpbm_listing_template' );
         //$data_list_tmpl      = wpbm_nl_after_br( $data_list_tmpl );
-        
-         
+
+
         ////////////////////////////////////////////////////////////////////////
         // Toolbar /////////////////////////////////////////////////////////////
         wpbm_bs_toolbar_sub_html_container_start();
@@ -98,83 +106,101 @@ class WPBM_Page_SettingsListing extends WPBM_Page_Structure {
         ?><span class="wpdevelop"><div class="visibility_container clearfix-height" style="display:block;"><?php
 
             wpbm_js_for_items_page();                                            // JavaScript functions
-			
+
             $this->toolbar_reset_to_default();                                // Reset to Default Forms
-            
+
             $save_button = array( 'title' => __('Save Changes', 'booking-manager'), 'form' => $submit_form_name );
-            $this->toolbar_save_button( $save_button );                         // Save Button 
-            
+            $this->toolbar_save_button( $save_button );                         // Save Button
+
         ?></div></span><?php
-        
+
         wpbm_bs_toolbar_sub_html_container_end();
-        
+
         ?><div class="clear"></div><?php
-		
+
 		if ( 0 ) {
 			// Scroll links ////////////////////////////////////////////////////////
 			?>
 			<div class="wpdvlp-sub-tabs" style="background:none;border:none;box-shadow: none;padding:0;"><span class="nav-tabs" style="text-align:right;">
-				<a href="javascript:void(0);" onclick="javascript:wpbm_scroll_to('#wpbm_settings_listing_metabox' );" original-title="" class="nav-tab go-to-link"><span><?php echo ucwords( __('Listing', 'booking-manager') ); ?></span></a>            
+				<a href="javascript:void(0);" onclick="javascript:wpbm_scroll_to('#wpbm_settings_listing_metabox' );" original-title="" class="nav-tab go-to-link"><span><?php echo ucwords( __('Listing', 'booking-manager') ); ?></span></a>
 			</span></div>
 			<?php
 		}
-		
+
         ////////////////////////////////////////////////////////////////////////
         // Content  ////////////////////////////////////////////////////////////
         ?>
         <div class="clear" style="margin-bottom:10px;"></div>
         <span class="metabox-holder">
             <form  name="<?php echo $submit_form_name; ?>" id="<?php echo $submit_form_name; ?>" action="" method="post">
-                <?php 
-                   // N o n c e   field, and key for checking   S u b m i t 
+                <?php
+                   // N o n c e   field, and key for checking   S u b m i t
                    wp_nonce_field( 'wpbm_settings_page_' . $submit_form_name );
-                ?><input type="hidden" name="is_form_sbmitted_<?php echo $submit_form_name; ?>" id="is_form_sbmitted_<?php echo $submit_form_name; ?>" value="1" /><?php 
-                
-                ?><input type="hidden" name="reset_to_default_form" id="reset_to_default_form" value="" /><?php 
-                     
+                ?><input type="hidden" name="is_form_sbmitted_<?php echo $submit_form_name; ?>" id="is_form_sbmitted_<?php echo $submit_form_name; ?>" value="1" /><?php
+
+                ?><input type="hidden" name="reset_to_default_form" id="reset_to_default_form" value="" /><?php
+
                 ?><div class="wpbm_settings_row wpbm_settings_row_left"><?php
-                
+
                     wpbm_open_meta_box_section( 'wpbm_settings_listing', __('Event template - row for event listing', 'booking-manager') );
-					
-						$this->show_listing_template( $data_list_tmpl );   
-						
+
+						$this->show_listing_template( $data_list_tmpl );
+
                     wpbm_close_meta_box_section();
                 ?>
-                </div>  
-                <div class="wpbm_settings_row wpbm_settings_row_right"><?php                
-                
+                </div>
+                <div class="wpbm_settings_row wpbm_settings_row_right"><?php
+
                     wpbm_open_meta_box_section( 'wpbm_settings_listing_help', __('Help', 'booking-manager') );
-					
-						$this->show_content_data_form_help();         
-						
+
+						$this->show_content_data_form_help();
+
                     wpbm_close_meta_box_section();
                 ?>
                 </div>
                 <div class="clear"></div>
-                <input type="submit" value="<?php _e('Save Changes','booking-manager'); ?>" class="button button-primary wpbm_submit_button" />  
+                <input type="submit" value="<?php _e('Save Changes','booking-manager'); ?>" class="button button-primary wpbm_submit_button" />
             </form>
         </span>
-        <?php       
-						
+        <?php
+
 		$this->css();
 		$this->js();
-		
+
         do_action( 'wpbm_hook_settings_page_footer', 'listing_template' );
-		
+
 	}
 
-    
-    /** Save Chanages */  
+
+    /** Save Chanages */
     public function update() {
-            
-		// We can  not use here such code:
-		// WPBM_Settings_API::validate_textarea_post_static( 'listing_template' );
-		// becuse its will  remove also JavaScript,  which  possible to  use for wizard form  or in some other cases.
-		$data_list_tmpl =  trim( stripslashes( $_POST['listing_template'] ) );
+
+		if ( ! $this->can_manage_listing_template() ) {
+			wp_die(
+				  esc_html__( 'Sorry, you are not allowed to manage the Booking Manager listing template.', 'booking-manager' )
+				, esc_html__( 'Forbidden', 'booking-manager' )
+				, array( 'response' => 403 )
+			);
+		}
+
+		$data_list_tmpl = isset( $_POST['listing_template'] ) ? trim( wp_unslash( $_POST['listing_template'] ) ) : '';
+		$data_list_tmpl = wpbm_sanitize_listing_template( $data_list_tmpl );
 		update_wpbm_option(   'wpbm_listing_template' , $data_list_tmpl );
 
-		wpbm_show_changes_saved_message();        
+		wpbm_show_changes_saved_message();
     }
+
+
+	/**
+	 * Listing template is a global frontend template, so managing it requires
+	 * administrator-level options access rather than the general plugin menu role.
+	 *
+	 * @return bool
+	 */
+	private function can_manage_listing_template() {
+
+		return current_user_can( 'manage_options' );
+	}
 
         
     // <editor-fold     defaultstate="collapsed"                        desc=" CSS  /  JS  "  >

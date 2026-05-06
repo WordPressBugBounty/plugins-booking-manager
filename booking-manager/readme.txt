@@ -4,8 +4,8 @@ Donate link: https://oplugins.com/plugins/booking-manager
 Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
-Tested up to: 6.9
-Stable tag: 2.1.18
+Tested up to: 7.0
+Stable tag: 2.1.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.19 =
+* **Fix** Hardened Listing Template settings by restricting access to manage_options and sanitizing listing_template on save and render while preserving safe HTML/placeholders
+
 = 2.1.18 =
 * **Fix** Fix XSS during listing of .ics feed content, if the .ics file was broken or intentionaly inject by malicious script. (2.1.18.1)
 

@@ -221,7 +221,7 @@ function wpbm_verify_window_opening( us_id, window_id ){
                 url: wpbm_ajaxurl,
                 type:'POST',
                 success: function (data, textStatus){if( textStatus == 'success')   jQuery('#ajax_respond').html( data );},
-                error:function (XMLHttpRequest, textStatus, errorThrown){ window.status = 'Ajax sending Error status:'+ textStatus; alert(XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText); if ( XMLHttpRequest.status == 500 ) { alert('Error: 500'); } } ,
+                error:function (XMLHttpRequest, textStatus, errorThrown){ window.status = 'Ajax sending Error status:'+ textStatus; console.error( XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText); if ( XMLHttpRequest.status == 500 ) { console.error( 'Error: 500'); } } ,
                 // beforeSend: someFunction,
                 data:{
                     action:     'WPBM_USER_SAVE_WINDOW_STATE',
@@ -253,7 +253,7 @@ function wpbm_save_custom_user_data( us_id, data_name, data_value , is_reload ){
                 url: wpbm_ajaxurl,
                 type:'POST',
                 success: function (data, textStatus){if( textStatus == 'success')   jQuery('#ajax_respond').html( data );},
-                error:function (XMLHttpRequest, textStatus, errorThrown){ window.status = 'Ajax sending Error status:'+ textStatus; alert(XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText); if ( XMLHttpRequest.status == 500 ) { alert('Error: 500'); } } ,
+                error:function (XMLHttpRequest, textStatus, errorThrown){ window.status = 'Ajax sending Error status:'+ textStatus; console.error( XMLHttpRequest.status + ' ' + XMLHttpRequest.statusText); if ( XMLHttpRequest.status == 500 ) { console.error( 'Error: 500'); } } ,
                 // beforeSend: someFunction,
                 data:{
                     action:     'WPBM_USER_SAVE_CUSTOM_DATA',

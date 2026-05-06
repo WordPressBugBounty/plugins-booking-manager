@@ -297,8 +297,48 @@ function wpbm_replace_shortcodes( $subject, $replace_array , $replace_unknown_sh
     return $subject;        
 }
 
+
+/**
+ * Sanitize the frontend listing template.
+ *
+ * The listing template is stored as an option and rendered by the public
+ * [booking-manager-listing] shortcode, so script-capable markup must never be
+ * persisted or returned to visitors.
+ *
+ * @param string $template Template HTML with Booking Manager placeholders.
+ * @return string Safe template HTML.
+ */
+function wpbm_sanitize_listing_template( $template ) {
+
+	if ( ! is_string( $template ) ) {
+		$template = '';
+	}
+
+	$allowed_html = wp_kses_allowed_html( 'post' );
+
+	// Keep compatibility with templates that embed safe external content.
+	$allowed_html['iframe'] = array(
+		  'src'             => true
+		, 'style'           => true
+		, 'id'              => true
+		, 'class'           => true
+		, 'width'           => true
+		, 'height'          => true
+		, 'title'           => true
+		, 'loading'         => true
+		, 'allowfullscreen' => true
+	);
+
+	if ( isset( $allowed_html['a'] ) ) {
+		$allowed_html['a']['target'] = true;
+		$allowed_html['a']['rel']    = true;
+	}
+
+	return wp_kses( $template, $allowed_html );
+}
+
 /** Simple hack  to  make array strings lowercase
- * 
+ *
  * @param type $array
  * @return type
  */
@@ -327,20 +367,20 @@ if ( !function_exists( 'hash_equals' ) ) {
 }
 
 /** Check if this valid timestamp
- * 
+ *
  * @param string|int $timestamp
  * @return bool
  */
 function wpbm_is_valid_timestamp( $timestamp ) {
-	return (   ( (string) (int) $timestamp === $timestamp) 
+	return (   ( (string) (int) $timestamp === $timestamp)
 			&& ($timestamp <= PHP_INT_MAX)
-			&& ($timestamp >= ~PHP_INT_MAX) 
+			&& ($timestamp >= ~PHP_INT_MAX)
 		   );
 }
 //                                                                              </editor-fold>
 
-	
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" F i l e s    &&    U R L s " >    
+
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" F i l e s    &&    U R L s " >
 ////////////////////////////////////////////////////////////////////////////////
 //  F i l e s    &&    U R L s
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,7 +407,7 @@ function wpbm_plugin_url( $path ) {
 }
 
 /** Check  if such file exist or not.
- * 
+ *
  * @param string $path - relative path to  file (relative to plugin folder).
  * @return boolean true | false
  */
@@ -375,12 +415,12 @@ function wpbm_is_file_exist( $path ) {
 
 	if (  file_exists( trailingslashit( WPBM_PLUGIN_DIR ) . ltrim( $path, '/\\' ) )  )  // check if this file exist
 		return true;
-	else 
+	else
 		return false;
 }
- 
+
 /** Set URL from absolute to relative (starting from /)
- * 
+ *
  * @param type $url
  * @return type
  */
@@ -395,37 +435,37 @@ function wpbm_set_relative_url( $url ){
 	return  '/' . $url;
 }
 
-/** Get Correct Relative URL 
- * 
+/** Get Correct Relative URL
+ *
  * @param type $link
  * @return string
  */
 function wpbm_make_link_relative( $link ){
 
-	if ( $link  == get_option('siteurl') ) 
+	if ( $link  == get_option('siteurl') )
 		$link = '/';
-	$link = '/' . trim( wp_make_link_relative( $link ), '/' ); 
+	$link = '/' . trim( wp_make_link_relative( $link ), '/' );
 
-	return $link;        
+	return $link;
 }
 
-/** Get Correct Absolute URL 
- * 
+/** Get Correct Absolute URL
+ *
  * @param string $link
  * @return type
  */
 function wpbm_make_link_absolute( $link ){
 
 	if ( ( $link  != get_option('siteurl') ) && ( strpos($link, 'http') !== 0 ) )
-		$link  = get_option('siteurl') . '/' . trim( wp_make_link_relative( $link ), '/' ); 
+		$link  = get_option('siteurl') . '/' . trim( wp_make_link_relative( $link ), '/' );
 	return esc_js( $link ) ;
 }
 
 
 if (!function_exists ('get_file_data_wpdev')) {
-    
+
 	/** Get header info from this file, just for compatibility with WordPress 2.8 and older versions
-	 * 
+	 *
 	 * @param type $file
 	 * @param type $default_headers
 	 * @param type $context
@@ -469,7 +509,7 @@ if (!function_exists ('get_file_data_wpdev')) {
 
 
 /** Get content from  specific URL
- * 
+ *
  * @param string $url
  * @return string|boolean (false on error)
  */
@@ -483,8 +523,8 @@ function wpbm_get_ssl_page_content( $url ) {
 			'user-agent' => 'Mozilla/5.0 (iPad; U; CPU OS 3_2_1 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Mobile/7B405'       //FixIn: 2.0.12.1
 										//	'method' => 'GET',
 										//	'timeout' => 5,																// timeout value for an HTTP request.
-										//	'redirection' => 5,															// number of redirects allowed during an HTTP request.												
-										//	'httpversion' => '1.0',												
+										//	'redirection' => 5,															// number of redirects allowed during an HTTP request.
+										//	'httpversion' => '1.0',
 										//	'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 										//	'reject_unsafe_urls' => false,
 										//	'blocking' => true,
@@ -498,12 +538,12 @@ function wpbm_get_ssl_page_content( $url ) {
 										//	'stream' => false,
 										//	'filename' => null,
 										//	'limit_response_size' => null
-									) 
+									)
 						);
 
-	if ( 
-		   ( ! is_wp_error( $result ) ) 
-		&& ( $result[ 'response' ][ 'code' ] == '200' ) 
+	if (
+		   ( ! is_wp_error( $result ) )
+		&& ( $result[ 'response' ][ 'code' ] == '200' )
 	) {
 
 		return $result[ 'body' ];
@@ -581,13 +621,13 @@ function wpbm_get_bytes_from_str( $str ) {
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" A d m i n    M e n u    L i n k s " >    	
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" A d m i n    M e n u    L i n k s " >
 ////////////////////////////////////////////////////////////////////////////
 // A d m i n    M e n u    L i n k s
 ////////////////////////////////////////////////////////////////////////////
 
 /** Get URL to specific Admin Menu page
- * 
+ *
  * @param string $menu_type         -   { item | add | resources | settings }
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
  * @return string                   - URL  to  menu
@@ -617,50 +657,50 @@ function wpbm_get_menu_url( $menu_type, $is_absolute_url = true ) {
 
 	if ( $is_absolute_url ) {
 		$link = admin_url( 'admin.php' ) . '?page=' . $link ;
-	} 
+	}
 
-	return $link;        
+	return $link;
 }
 
 // // // // // // // // // // // // // // // // // // // // // // // // // /
 
 /** Get URL of item Listing or Calendar Overview page
- * 
+ *
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
- * @param boolean $is_old           - { default: true } 
+ * @param boolean $is_old           - { default: true }
  * @return string                   - URL  to  menu
  */
 function wpbm_get_master_url( $is_absolute_url = true ) {
 	return wpbm_get_menu_url( 'master', $is_absolute_url );
 }
 
-/** Get URL of item > Add item page 
- * 
+/** Get URL of item > Add item page
+ *
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
- * @param boolean $is_old           - { default: true } 
+ * @param boolean $is_old           - { default: true }
  * @return string                   - URL  to  menu
  */
 function wpbm_get_new_wpbm_url( $is_absolute_url = true ) {
 	return wpbm_get_menu_url( 'add', $is_absolute_url );
 }
 
-/** Get URL of item > Settings page 
- * 
+/** Get URL of item > Settings page
+ *
  * @param boolean $is_absolute_url  - Absolute or relative url { default: true }
- * @param boolean $is_old           - { default: true } 
+ * @param boolean $is_old           - { default: true }
  * @return string                   - URL  to  menu
  */
 function wpbm_get_settings_url( $is_absolute_url = true ) {
 	return wpbm_get_menu_url( 'settings', $is_absolute_url );
 }
-    
+
 // // // // // // // // // // // // // // // // // // // // // // // // // /
 
 /** Check if this item Listing or Calendar Overview page
  * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
  * @return boolean true | false
  */
-function wpbm_is_master_page( $server_param = 'REQUEST_URI' ) { 
+function wpbm_is_master_page( $server_param = 'REQUEST_URI' ) {
 
 	if (  ( is_admin() ) && isset($_SERVER[ $server_param ]) &&
 		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'page=oplugins') !== false ) &&  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
@@ -669,11 +709,11 @@ function wpbm_is_master_page( $server_param = 'REQUEST_URI' ) {
 			|| ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=') === false )  )		// or tab not specified at all   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
-	} 
+	}
 	return false;
 }
 
-/** Check if this item > Add item page 
+/** Check if this item > Add item page
  * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
  * @return boolean true | false
  */
@@ -684,15 +724,15 @@ function wpbm_is_new_wpbm_page( $server_param = 'REQUEST_URI' ) {
 		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm-new') !== false )   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
-	} 
+	}
 	return false;
 }
 
 
-/** Check if this item > Settings page 
+/** Check if this item > Settings page
  * @param string $server_param -  'REQUEST_URI' | 'HTTP_REFERER'  Default: 'REQUEST_URI'
  * @return boolean true | false
- */    
+ */
 function wpbm_is_settings_page( $server_param = 'REQUEST_URI' ) {
 
 	if (  ( is_admin() ) && isset($_SERVER[ $server_param ]) &&
@@ -700,20 +740,20 @@ function wpbm_is_settings_page( $server_param = 'REQUEST_URI' ) {
 		  ( strpos(sanitize_text_field( wp_unslash($_SERVER[ $server_param ])),'tab=wpbm-settings') !== false )   // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		) {
 		return true;
-	} 
+	}
 	return false;
 }
 
 //                                                                              </editor-fold>
-    
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" A d m i n    U I    E l e m e n t s " >        
+
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" A d m i n    U I    E l e m e n t s " >
 ////////////////////////////////////////////////////////////////////////////
 // A d m i n    U I    E l e m e n t s
 ////////////////////////////////////////////////////////////////////////////
 
 /** Get Number of new items
- * 
+ *
  * @return int
  */
 function wpbm_get_number_new_items(){
@@ -722,7 +762,7 @@ function wpbm_get_number_new_items(){
 
 
 /** Show Admin    B A R    .
- * 
+ *
  * @global type $wp_admin_bar
  * @return type
  */
@@ -812,21 +852,21 @@ function wp_admin_bar_items_menu(){
 
 
 /** Show Rating link at footer */
-function wpbm_show_wpbm_footer(){ 
+function wpbm_show_wpbm_footer(){
 
 	// Nothing here.
 }
-//                                                                              </editor-fold>    
-    
-    
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" DB - cheking if table, field or index exists " >        
+//                                                                              </editor-fold>
+
+
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" DB - cheking if table, field or index exists " >
 ////////////////////////////////////////////////////////////////////////////
 // DB - cheking if table, field or index exists
 ////////////////////////////////////////////////////////////////////////////
 
 /**
  * Check if table exist
- * 
+ *
  * @global type $wpdb
  * @param string $tablename
  * @return 0|1
@@ -849,7 +889,7 @@ function wpbm_is_table_exists( $tablename ) {
 
 /**
  * Check if table exist
- * 
+ *
  * @global type $wpdb
  * @param string $tablename
  * @param type $fieldname
@@ -860,7 +900,7 @@ function wpbm_is_field_in_table_exists( $tablename , $fieldname) {
 	if ( (! empty($wpdb->prefix) ) && ( strpos($tablename, $wpdb->prefix) === false ) ) $tablename = $wpdb->prefix . $tablename ;
 	$sql_check_table = "SHOW COLUMNS FROM {$tablename}" ;
 
-	$res = $wpdb->get_results( $sql_check_table ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+	$res = $wpdb->get_results( $sql_check_table ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 	foreach ($res as $fld) {
 		if ($fld->Field == $fieldname) return 1;
@@ -872,7 +912,7 @@ function wpbm_is_field_in_table_exists( $tablename , $fieldname) {
 
 /**
  * Check if index exist
- * 
+ *
  * @global type $wpdb
  * @param string $tablename
  * @param type $fieldindex
@@ -888,15 +928,15 @@ function wpbm_is_index_in_table_exists( $tablename , $fieldindex) {
 }
 
 //                                                                              </editor-fold>
-		
- 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" E s c a p i n g " >    	
+
+
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" E s c a p i n g " >
 ////////////////////////////////////////////////////////////////////////////
 // E s c a p i n g
 ////////////////////////////////////////////////////////////////////////////
 
 /** Transform the REQESTS parameters (GET and POST) into URL
- * 
+ *
  * @param type $page_param
  * @param array $exclude_params
  * @param type $only_these_parameters
@@ -913,16 +953,16 @@ function wpbm_get_params_in_url( $page_param , $exclude_params = array(), $only_
 
 	if ( $only_get )
 		$check_params = $_GET;  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	else 
+	else
 		$check_params = $_REQUEST;  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-//debuge($check_params);    
+//debuge($check_params);
 	foreach ( $check_params as $prm_key => $prm_value ) {
 
 		// Skip  parameters arrays,  like $_GET['rvaluation_to'] = Array ( [0] => 6,  [1] => 14,  [2] => 14 )
-		if ( 
-			   (  is_string( $prm_value ) )  
-			|| ( is_numeric( $prm_value ) ) 
-			) {    
+		if (
+			   (  is_string( $prm_value ) )
+			|| ( is_numeric( $prm_value ) )
+			) {
 
 			if ( strlen( $prm_value ) > 1000 ) {                                    // Check  about TOOO long parameters,  if it exist  then  reset it.
 				$prm_value = '';
@@ -933,7 +973,7 @@ function wpbm_get_params_in_url( $page_param , $exclude_params = array(), $only_
 						$get_paramaters[ $prm_key ] = $prm_value;
 		}
 	}
-//debuge($check_params, $get_paramaters, $exclude_params );    
+//debuge($check_params, $get_paramaters, $exclude_params );
 	$url = admin_url( add_query_arg(  $get_paramaters , 'admin.php' ) );
 
 	if ( $is_escape_url )
@@ -944,7 +984,7 @@ function wpbm_get_params_in_url( $page_param , $exclude_params = array(), $only_
 	/*      // Old variant:
 			if ( isset( $_GET['page'] ) ) $page_param = $_GET['page'];
 
-			$url_start = 'admin.php?page=' . $page_param . '&';    
+			$url_start = 'admin.php?page=' . $page_param . '&';
 			$exclude_params[] = 'page';
 			foreach ( $_REQUEST as $prm_key => $prm_value ) {
 
@@ -957,16 +997,16 @@ function wpbm_get_params_in_url( $page_param , $exclude_params = array(), $only_
 			$url_start = substr( $url_start, 0, -1 );
 
 			return $url_start;
-	 */     
+	 */
 }
 
 
 /** Clean Request Parameters
- * 
+ *
  */
-function wpbm_check_request_paramters() { 
+function wpbm_check_request_paramters() {
 
-	$clean_params = array();  
+	$clean_params = array();
 
 	$clean_params[ 'wh_wpbm_id' ]			= 'digit_or_csd';		// '0' | '1' | ''
 	$clean_params[ 'wh_wpbm_date' ]			= 'digit_or_date';		// number | date 2016-07-20
@@ -980,10 +1020,10 @@ function wpbm_check_request_paramters() {
 		if (  is_array( $clean_type ) ) {                                       // check  only values from  the list  in this array
 
 			if ( ( isset( $_REQUEST[ $request_key ] ) ) &&  ( ! in_array( $_REQUEST[ $request_key ], $clean_type ) ) )  // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$clean_type = 's';    
-			else 
+				$clean_type = 's';
+			else
 				$clean_type = 'checked_skip_it';
-		} 
+		}
 
 		switch ( $clean_type ) {
 
@@ -1026,13 +1066,13 @@ function wpbm_check_request_paramters() {
 
 }
 
-    
+
 /** Check  paramter  if it number or comma separated list  of numbers
- * 
+ *
  * @global type $wpdb
  * @param string $value
  * @return string
- * 
+ *
  * Exmaple:
 					wpbm_clean_digit_or_csd( '12,a,45,9' )                  => '12,0,45,9'
  * or
@@ -1040,14 +1080,14 @@ function wpbm_check_request_paramters() {
  * or
 					wpbm_clean_digit_or_csd( array( '12,a,45,9', '10a' ) )  => array ( '12,0,45,9',  '10' )
  */
-function wpbm_clean_digit_or_csd( $value ) {                                //FixIn:6.2.1.4 
+function wpbm_clean_digit_or_csd( $value ) {                                //FixIn:6.2.1.4
 
 	if ( $value === '' ) return $value;
 
 
 	if ( is_array( $value ) ) {
 		foreach ( $value as $key => $check_value ) {
-			$value[ $key ] = wpbm_clean_digit_or_csd( $check_value ); 
+			$value[ $key ] = wpbm_clean_digit_or_csd( $check_value );
 		}
 		return $value;
 	}
@@ -1066,10 +1106,10 @@ function wpbm_clean_digit_or_csd( $value ) {                                //Fi
 	$result = implode(',', $result );
 	return $result;
 }
-    
-    
+
+
 /** Cehck  about Valid date,  like 2016-07-20 or digit
- * 
+ *
  * @param string $value
  * @return string or int
  */
@@ -1085,24 +1125,24 @@ function wpbm_clean_digit_or_date( $value ) {                               //Fi
 	}
 
 }
-    
+
 
 /** Check $value for injection here
- * 
+ *
  * @param type $value
  * @return type
  */
 function wpbm_clean_parameter( $value ) {
 
 	$value = preg_replace( '/<[^>]*>/', '', $value );                       // clean any tags
-	$value = str_replace( '<', ' ', $value ); 
-	$value = str_replace( '>', ' ', $value ); 
+	$value = str_replace( '<', ' ', $value );
+	$value = str_replace( '>', ' ', $value );
 	$value = wp_strip_all_tags( $value );
 
-	// Clean SQL injection    
+	// Clean SQL injection
 	$value = esc_sql( $value );
 
-	return $value; 
+	return $value;
 }
 
 
@@ -1117,12 +1157,12 @@ function wpbm_esc_like( $value_trimmed ) {
 
 
 /** Clean user string for using in SQL LIKE statement - append to  LIKE sql
- * 
+ *
  * @param string $value - to clean
  * @return string       - escaped
- *                                  Exmaple:    
+ *                                  Exmaple:
  *                                              $search_escaped_like_title = wpbm_clean_like_string_for_append_in_sql_for_db( $input_var );
- * 
+ *
  *                                              $where_sql = " WHERE title LIKE ". $search_escaped_like_title ." ";
  */
 function wpbm_clean_like_string_for_append_in_sql_for_db( $value ) {
@@ -1133,7 +1173,7 @@ function wpbm_clean_like_string_for_append_in_sql_for_db( $value ) {
 	$like          = $wild . wpbm_esc_like( $value_trimmed ) . $wild;
 	$sql           = $wpdb->prepare( "'%s'", $like );  // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder
 
-	return $sql;    
+	return $sql;
 
 
 /* Help:
@@ -1150,20 +1190,20 @@ function wpbm_clean_like_string_for_append_in_sql_for_db( $value ) {
  * Example Escape Chain:
  *
  *     $sql  = esc_sql( wpbm_esc_like( $input ) );
- */        
+ */
 
 }
 
 
-/** Clean string for using in SQL LIKE requests inside single quotes:    WHERE title LIKE '%". $escaped_search_title ."%' 
+/** Clean string for using in SQL LIKE requests inside single quotes:    WHERE title LIKE '%". $escaped_search_title ."%'
  *  Replaced _ to \_     % to \%      \   to   \\
  * @param string $value - to clean
  * @return string       - escaped
- *                                  Exmaple:    
+ *                                  Exmaple:
  *                                              $search_escaped_like_title = wpbm_clean_like_string_for_db( $input_var );
- * 
+ *
  *                                              $where_sql = " WHERE title LIKE '%". $search_escaped_like_title ."%' ";
- * 
+ *
  *                                  Important! Use SINGLE quotes after in SQL query:  LIKE '%".$data."%'
  */
 function wpbm_clean_like_string_for_db( $value ){
@@ -1192,24 +1232,24 @@ function wpbm_clean_like_string_for_db( $value ){
  * Example Escape Chain:
  *
  *     $sql  = esc_sql( wpbm_esc_like( $input ) );
- */        
+ */
 }
 
 
 /** Escape string from SQL for the HTML form field
- * 
+ *
  * @param string $value
  * @return string
- * 
+ *
  * Used: esc_sql function.
- * 
- * https://codex.wordpress.org/Function_Reference/esc_sql 
- * Note: Be careful to use this function correctly. It will only escape values to be used in strings in the query. 
- * That is, it only provides escaping for values that will be within quotes in the SQL (as in field = '{$escaped_value}'). 
- * If your value is not going to be within quotes, your code will still be vulnerable to SQL injection. 
- * For example, this is vulnerable, because the escaped value is not surrounded by quotes in the SQL query: 
- * ORDER BY {$escaped_value}. As such, this function does not escape unquoted numeric values, field names, or SQL keywords. 
- *         
+ *
+ * https://codex.wordpress.org/Function_Reference/esc_sql
+ * Note: Be careful to use this function correctly. It will only escape values to be used in strings in the query.
+ * That is, it only provides escaping for values that will be within quotes in the SQL (as in field = '{$escaped_value}').
+ * If your value is not going to be within quotes, your code will still be vulnerable to SQL injection.
+ * For example, this is vulnerable, because the escaped value is not surrounded by quotes in the SQL query:
+ * ORDER BY {$escaped_value}. As such, this function does not escape unquoted numeric values, field names, or SQL keywords.
+ *
  */
 function wpbm_clean_string_for_form( $value ){
 
@@ -1228,14 +1268,14 @@ function wpbm_clean_string_for_form( $value ){
 }
 //                                                                              </editor-fold>
 
-    
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" U s e r s " >    
+
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" U s e r s " >
 ////////////////////////////////////////////////////////////////////////////////
 //  U s e r s
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Get ID of active user
- * 
+ *
  * @return type
  */
 function get_wpbm_current_user_id() {
@@ -1245,8 +1285,8 @@ function get_wpbm_current_user_id() {
 
 
 /** Check  if Current User have specific Role
- * 
- * @return bool Whether the current user has the given capability. 
+ *
+ * @return bool Whether the current user has the given capability.
  */
 function wpbm_is_current_user_have_this_role( $user_role ) {
 
@@ -1267,10 +1307,10 @@ add_wpbm_filter( 'wpbm_get_user_ip', 'wpbm_get_user_ip' );
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Mesages for Admin panel  " >    
-////////////////////////////////////////////////////////////////////////////////    
-// Mesages for Admin panel 
-////////////////////////////////////////////////////////////////////////////////    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Mesages for Admin panel  " >
+////////////////////////////////////////////////////////////////////////////////
+// Mesages for Admin panel
+////////////////////////////////////////////////////////////////////////////////
 
 function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'updated' , $notice_id = 0, $is_dismissible = false ) {
 
@@ -1282,17 +1322,17 @@ function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'upd
 
 		$is_dismissible = false;
 
-		if ( 
+		if (
 			   ( ( $is_dismissible ) && ( ! wpbm_section_is_dismissed( $notice_id ) ) )
 			|| ( ! $is_dismissible )
-			 // || true 
+			 // || true
 		){
 
 			?><div  id="<?php echo esc_attr($notice_id); ?>"
 					class="wpbm_system_notice wpbm_is_dismissible wpbm_is_hideable <?php echo esc_attr( $message_type ); ?>"
 					data-nonce="<?php echo esc_attr(wp_create_nonce( $nonce_name = $notice_id . '_wpbmnonce' )); ?>"
 					data-user-id="<?php echo esc_attr(get_current_user_id()); ?>"
-				><?php 
+				><?php
 
 			wpbm_x_dismiss_button();
 
@@ -1303,17 +1343,17 @@ function wpbm_show_fixed_message( $message, $time_to_show , $message_type = 'upd
 			// Get the time of message showing
 			$time_to_show = intval( $time_to_show ) * 1000;
 
-			 if ( $time_to_show > 0 ) { 
-				?> <script type="text/javascript">                              				
+			 if ( $time_to_show > 0 ) {
+				?> <script type="text/javascript">
 						jQuery('#<?php echo esc_attr($notice_id); ?>').animate({opacity: 1},<?php echo esc_attr( $time_to_show ); ?>).fadeOut( 2000 );
 				</script> <?php
-			 }			
-		}       	
+			 }
+		}
 }
 
 
 /** Show Ajax message at the top of page
- * 
+ *
  * @param type $message
  * @param type $time_to_show
  * @param type $is_error
@@ -1334,15 +1374,15 @@ function wpbm_show_ajax_message( $message, $time_to_show = 3000, $is_error = fal
 
 
 /** Show "Saved Changes" message at  the top  of settings page.
- * 
- */    
+ *
+ */
 function wpbm_show_changes_saved_message() {
 	wpbm_show_message ( __('Changes saved.', 'booking-manager'), 5 );
-}    
+}
 
 
 /** Show Message at  Top  of Admin Pages
- * 
+ *
  * @param type $message         - mesage to  show
  * @param type $time_to_show    - number of seconds to  show, if 0 or skiped,  then unlimited time.
  * @param type $message_type    - Default: updated   { updated | error | notice }
@@ -1359,7 +1399,7 @@ function wpbm_show_message ( $message, $time_to_show , $message_type = 'updated'
 	$time_to_show = intval( $time_to_show ) * 1000;
 
 	// Show this Message
-	?> <script type="text/javascript">                              
+	?> <script type="text/javascript">
 		if ( jQuery('.wpbm_admin_message').length ) {
 				jQuery('.wpbm_admin_message').append( '<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -1374,7 +1414,7 @@ function wpbm_show_message ( $message, $time_to_show , $message_type = 'updated'
 
 
 /** Escape and prepare message to  show it
- * 
+ *
  * @param type $message                 - message
  * @param type $message_type            - Default: updated   { updated | error | notice }
  * @param string $inner_message_id      - ID of message DIV,  can  be skipped
@@ -1401,11 +1441,11 @@ function wpbm_get_formated_message ( $message, $message_type = 'updated', $inner
 
 
 /** Show system info  in settings page
- * 
- * @param string $message                     ...  
+ *
+ * @param string $message                     ...
  * @param string $message_type                'info' | 'warning' | 'error'
  * @param string $title                       __('Important!' , 'booking-manager')  |  __('Note' , 'booking-manager')
- * 
+ *
  * Exmaple:     wpbm_show_message_in_settings( __( 'Nothing Found', 'booking-manager'), 'warning', __('Important!' , 'booking-manager') );
  */
 function wpbm_show_message_in_settings( $message, $message_type = 'info', $title = '' , $is_echo = true ) {
@@ -1434,10 +1474,10 @@ function wpbm_show_message_in_settings( $message, $message_type = 'info', $title
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Settings Meta Boxes " >    
-////////////////////////////////////////////////////////////////////////////////    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Settings Meta Boxes " >
+////////////////////////////////////////////////////////////////////////////////
 // Settings Meta Boxes
-////////////////////////////////////////////////////////////////////////////////    
+////////////////////////////////////////////////////////////////////////////////
 function wpbm_open_meta_box_section( $metabox_id, $title ) {
 
 	$my_close_open_win_id = $metabox_id . '_metabox';
@@ -1462,30 +1502,30 @@ function wpbm_open_meta_box_section( $metabox_id, $title ) {
 
 function wpbm_close_meta_box_section() {
 	?>
-			  </div> 
-		</div> 
-	</div>                        
+			  </div>
+		</div>
+	</div>
 	<?php
 }
 //                                                                              </editor-fold>
 
 
 												// from Toolbar
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" M o d a l s " >    
-////////////////////////////////////////////////////////////////////////////////    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" M o d a l s " >
+////////////////////////////////////////////////////////////////////////////////
 //  M o d a l s
 ////////////////////////////////////////////////////////////////////////////////
 
-/** Start Loyouts - Modal Window structure */    
+/** Start Loyouts - Modal Window structure */
 function wpbm_write_content_for_modals_start_here() {
-    
+
     ?><span id="wpbm_content_for_modals"></span><?php
 }
-add_wpbm_action( 'wpbm_write_content_for_modals', 'wpbm_write_content_for_modals_start_here');    
+add_wpbm_action( 'wpbm_write_content_for_modals', 'wpbm_write_content_for_modals_start_here');
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Inline     JavaScript " >    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" Inline     JavaScript " >
 ////////////////////////////////////////////////////////////////////////////////
 // Inline    J a v a S c r i p t    to Footer page
 ////////////////////////////////////////////////////////////////////////////////
@@ -1533,20 +1573,20 @@ function wpbm_print_js() {
 //                                                                              </editor-fold>
 
 												// from Toolbar
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" JS & CSS - Tooltips & Popover" >    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" JS & CSS - Tooltips & Popover" >
 ////////////////////////////////////////////////////////////////////////////////
 // JS & CSS
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Load suport JavaScript for "Items" page*/
 function wpbm_js_for_items_page() {
-    
+
     $is_use_hints = get_wpbm_option( 'wpbm_is_use_hints_at_admin_panel'  );
     if ( $is_use_hints == 'On' )
       wpbm_bs_javascript_tooltips();                                            // JS Tooltips
 
-    wpbm_bs_javascript_popover();                                               // JS Popover        
-    
+    wpbm_bs_javascript_popover();                                               // JS Popover
+
     //wpbm_datepicker_js();                                                       // JS  Datepicker
     wpbm_datepicker_css();                                                      // CSS DatePicker
 }
@@ -1554,12 +1594,12 @@ function wpbm_js_for_items_page() {
 
 /** Datepicker activation JavaScript */
 function wpbm_datepicker_js() {
-    
+
     ?><script type="text/javascript">
         jQuery(document).ready( function(){
 
             function applyCSStoDays( date ){
-                return [true, 'date_available']; 
+                return [true, 'date_available'];
             }
             jQuery('input.wpbm-filters-section-calendar').datepick(
                 {   beforeShowDay: applyCSStoDays,
@@ -1572,7 +1612,7 @@ function wpbm_datepicker_js() {
                     dateFormat: 'yy-mm-dd',
                     changeMonth: false,
                     changeYear: false,
-                    minDate: null, 
+                    minDate: null,
                     maxDate: null, //'1Y',
                     showStatus: false,
                     multiSeparator: ', ',
@@ -1585,7 +1625,7 @@ function wpbm_datepicker_js() {
                 }
             );
         });
-        </script><?php 
+        </script><?php
 }
 
 
@@ -1623,14 +1663,14 @@ function wpbm_datepicker_css(){
         }
     </style>
     <?php
-}            
+}
 
 
 /** Sortable Table JavaScript */
 function wpbm_sortable_js() {
     ?>
-    <script type="text/javascript">        
-        // Activate Sortable Functionality    
+    <script type="text/javascript">
+        // Activate Sortable Functionality
         jQuery( document ).ready(function(){
 
             jQuery('.wpbm_input_table tbody th').css('cursor','move');
@@ -1656,18 +1696,18 @@ function wpbm_sortable_js() {
         });
     </script>
     <?php
-    
+
 }
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" R e l o a d    p a g e " >    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" R e l o a d    p a g e " >
 ////////////////////////////////////////////////////////////////////////////////
 // R e l o a d    p a g e
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * Reload page by using JavaScript
- * 
+ *
  * @param string $url - URL of page to  load
  */
 function wpbm_reload_page_by_js( $url ) {
@@ -1676,7 +1716,7 @@ function wpbm_reload_page_by_js( $url ) {
 
 	if ( ! empty( $redir ) ) {
 		?>
-		<script type="text/javascript">                
+		<script type="text/javascript">
 			window.location.href = '<?php echo esc_url($redir); ?>';
 		</script>
 		<?php
@@ -1685,7 +1725,7 @@ function wpbm_reload_page_by_js( $url ) {
 
 
 /** Redirect browser to a specific page
- * 
+ *
  * @param string $url - URL of page to redirect
  */
 function wpbm_redirect( $url ) {
@@ -1704,9 +1744,9 @@ function wpbm_redirect( $url ) {
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" P a g i n a t i o n    o f    T a b l e    L  i s t i n g " >    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" P a g i n a t i o n    o f    T a b l e    L  i s t i n g " >
 /** Show    P a g i n a t i o n
- * 
+ *
  * @param int $summ_number_of_items     - total  number of items
  * @param int $active_page_num          - number of activated page
  * @param int $num_items_per_page       - number of items per page
@@ -1733,39 +1773,39 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 
 	?>
 	<span class="wpdevelop wpbm-pagination">
-		<div class="container-fluid">  
+		<div class="container-fluid">
 			<div class="row">
 				<div class="col-sm-12 text-center control-group0">
 					<nav class="btn-toolbar">
 					  <div class="btn-group wpbm-no-margin" style="float:none;">
 
 						<?php if ( $pages_number > 1 ) { ?>
-								<a class="button button-secondary <?php echo ( $active_page_num == 1 ) ? ' disabled' : ''; ?>" 
+								<a class="button button-secondary <?php echo ( $active_page_num == 1 ) ? ' disabled' : ''; ?>"
 								   href="<?php echo esc_url($bk_admin_url); ?>&page_num=<?php if ($active_page_num == 1) { echo esc_attr( $active_page_num ); } else { echo esc_attr($active_page_num-1); } echo esc_attr( $url_sufix ); ?>">
 									<?php esc_html_e('Prev', 'booking-manager'); ?>
 								</a>
-						<?php } 
+						<?php }
 
 						/** Number visible pages (links) that linked to active page, other pages skipped by "..." */
 						$num_closed_steps = 3;
 
 						for ( $pg_num = 1; $pg_num <= $pages_number; $pg_num++ ) {
 
-								if ( ! ( 
-										   ( $pages_number > ( $num_closed_steps * 4) ) 
-										&& ( $pg_num > $num_closed_steps ) 
-										&& ( ( $pages_number - $pg_num + 1 ) > $num_closed_steps ) 
-										&& (  abs( $active_page_num - $pg_num ) > $num_closed_steps )  
+								if ( ! (
+										   ( $pages_number > ( $num_closed_steps * 4) )
+										&& ( $pg_num > $num_closed_steps )
+										&& ( ( $pages_number - $pg_num + 1 ) > $num_closed_steps )
+										&& (  abs( $active_page_num - $pg_num ) > $num_closed_steps )
 								   ) ) {
-									?> <a class="button button-secondary <?php if ($pg_num == $active_page_num ) echo ' active'; ?>" 
+									?> <a class="button button-secondary <?php if ($pg_num == $active_page_num ) echo ' active'; ?>"
 										 href="<?php echo esc_attr( $bk_admin_url ); ?>&page_num=<?php echo esc_attr( $pg_num);  echo esc_attr( $url_sufix); ?>">
 										<?php echo esc_html($pg_num); ?>
-									  </a><?php 
+									  </a><?php
 
-									if ( ( $pages_number > ( $num_closed_steps * 4) ) 
-											&& ( ($pg_num+1) > $num_closed_steps ) 
-											&& ( ( $pages_number - ( $pg_num + 1 ) ) > $num_closed_steps ) 
-											&&  ( abs($active_page_num - ( $pg_num + 1 ) ) > $num_closed_steps )  
+									if ( ( $pages_number > ( $num_closed_steps * 4) )
+											&& ( ($pg_num+1) > $num_closed_steps )
+											&& ( ( $pages_number - ( $pg_num + 1 ) ) > $num_closed_steps )
+											&&  ( abs($active_page_num - ( $pg_num + 1 ) ) > $num_closed_steps )
 										) {
 										echo ' <a class="button button-secondary disabled" href="javascript:void(0);">...</a> ';
 									}
@@ -1773,7 +1813,7 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 						}
 
 						if ( $pages_number > 1 ) { ?>
-								<a class="button button-secondary <?php echo ( $active_page_num == $pages_number ) ? ' disabled' : ''; ?>" 
+								<a class="button button-secondary <?php echo ( $active_page_num == $pages_number ) ? ' disabled' : ''; ?>"
 								   href="<?php echo esc_attr( $bk_admin_url ); ?>&page_num=<?php  if ($active_page_num == $pages_number) { echo esc_attr( $active_page_num); } else { echo esc_attr($active_page_num+1); }  echo esc_attr( $url_sufix); ?>">
 									<?php esc_html_e('Next', 'booking-manager'); ?>
 								</a>
@@ -1790,33 +1830,33 @@ function wpbm_show_pagination( $summ_number_of_items, $active_page_num, $num_ite
 //                                                                              </editor-fold>
 
 
-//                                                                              <editor-fold   defaultstate="collapsed"   desc=" D a t e s " >    
+//                                                                              <editor-fold   defaultstate="collapsed"   desc=" D a t e s " >
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dates Format
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /** Get Formated Date & time
- * 
+ *
  * @param string	$date_sql			- 2017-07-31 00:00:00  ||  2017-07-31
  * @param string	$date_format		- Optional.		-	"m / d / Y, D   H:i:s"
  * @param string	$seperator			- Optional.		-	" "
  * @return string	-	July 29, 2014 12:00 am
  */
 function wpbm_get_date_time_formatted( $date_sql,  $date_format = false, $seperator = ' ', $skip_midnight_time = false  ) {
-	
+
 	$return_date = wpbm_get_date_formatted( $date_sql, $date_format );
-	
-	$return_time = wpbm_get_time_formatted( $date_sql,  $date_format, $skip_midnight_time ); 
+
+	$return_time = wpbm_get_time_formatted( $date_sql,  $date_format, $skip_midnight_time );
 	if ( ! empty( $return_time ) )
 		$return_date .= $seperator . $return_time;
-	
+
 	return $return_date;
 }
 
 
 /** Get Formated Date
- * 
+ *
  * @param string	$date_sql			- 2017-07-31 00:00:00  ||  2017-07-31
  * @param string	$date_format		- Optional.		-	"m / d / Y, D"
  * @param bool	$skip_midnight_time		- Default false	- if 00:00:00 then return '';
@@ -1826,15 +1866,15 @@ function wpbm_get_date_formatted( $date_sql, $date_format = false ) {
 
     if ( $date_format === false )   $date_format = get_wpbm_option( 'wpbm_date_format' );
     if ( empty( $date_format ) )    $date_format = "m / d / Y, D";
-    
+
 	$formated_date = date_i18n( $date_format, strtotime( $date_sql ) );
-	
+
 	return $formated_date;
 }
 
 
 /** Get Formated Date & time
- * 
+ *
  * @param string	$date_sql			- 2017-07-31 00:00:00  ||  2017-07-31
  * @param string	$time_format		- Optional.		-	"H:i:s"
  * @return string	-	12:00 am
@@ -1843,18 +1883,18 @@ function wpbm_get_time_formatted( $date_sql,  $time_format = false , $skip_midni
 
 	if ( ( $skip_midnight_time ) && ( '00:00:00' == substr( $date_sql, -8 ) ) )
 		return '';
-	
+
 	if ( $time_format === false )   $time_format = get_wpbm_option( 'wpbm_time_format' );
     if ( empty( $time_format ) )    $time_format = 'h:i a';
-    
+
 	$formated_date = date_i18n( $time_format, strtotime( $date_sql ) );
-	
-	return $formated_date;    
+
+	return $formated_date;
 }
 
 
 /** Check if "current_day" is tomorrow from "next_day"
- * 
+ *
  * @param string $current_day_sql_check        : 2015-02-29 00:00:00
  * @param string $next_day_sql_check		   : 2015-02-30 00:00:00
  * @return boolean              : true | false
@@ -1863,26 +1903,26 @@ function wpbm_is_next_day( $current_day_sql_check, $next_day_sql_check  ) {
 
 	// Current day
 	$current_day_unix = strtotime( $current_day_sql_check );
-	
+
 	$current_day_midnight_sql  = date_i18n( 'Y-m-d', $current_day_unix );
 	$current_day_midnight_unix = strtotime( $current_day_midnight_sql );
-	
+
 	$calc_next_day_unix = strtotime( '+1 day',  $current_day_midnight_unix );
-	
+
 	// Next day
-	$next_day_unix = strtotime( $next_day_sql_check );	
+	$next_day_unix = strtotime( $next_day_sql_check );
 	$next_day_midnight_sql  = date_i18n( 'Y-m-d', $next_day_unix );
 	$next_day_midnight_unix = strtotime( $next_day_midnight_sql );
-	
-	
-	if ( $calc_next_day_unix ==  $next_day_midnight_unix ) 
-		return true; 
-    else                           
-		return false;		
+
+
+	if ( $calc_next_day_unix ==  $next_day_midnight_unix )
+		return true;
+    else
+		return false;
 }
 
 /** Check if "current_day" is same day  of "other_day"
- * 
+ *
  * @param string $current_day_sql_check        : 2015-02-29 00:00:00
  * @param string $other_day_sql_check		   : 2015-02-30 00:00:00
  * @return boolean              : true | false
@@ -1891,25 +1931,25 @@ function wpbm_is_this_same_day( $current_day_sql_check, $other_day_sql_check  ) 
 
 	// Current day
 	$current_day_unix = strtotime( $current_day_sql_check );
-	
+
 	$current_day_midnight_sql  = date_i18n( 'Y-m-d', $current_day_unix );
 	$current_day_midnight_unix = strtotime( $current_day_midnight_sql );
-	
+
 	// Other day
-	$other_day_unix = strtotime( $other_day_sql_check );	
+	$other_day_unix = strtotime( $other_day_sql_check );
 	$other_day_midnight_sql  = date_i18n( 'Y-m-d', $other_day_unix );
 	$other_day_midnight_unix = strtotime( $other_day_midnight_sql );
-	
-	
-	if ( $current_day_midnight_unix ==  $other_day_midnight_unix ) 
-		return true; 
-    else                           
-		return false;		
+
+
+	if ( $current_day_midnight_unix ==  $other_day_midnight_unix )
+		return true;
+    else
+		return false;
 }
 
 
 /** Get days in short format view
- * 
+ *
  * @param string $days        Dates: 15.05.2015, 16.05.2015, 17.05.2015
  * @return string           Dates in format: 15.05.2015 - 17.05.2015
  */
@@ -1925,22 +1965,22 @@ function wpbm_get_dates_short_format( $dates_sql_csv ) {                        
 	$last_show_day = '';
 
 	foreach ( $days as $day ) {
-		
+
 		$is_fin_at_end = false;
-		
+
 		if ( $previosday === false ) {					// First Day
-			
+
 			$result_string = wpbm_get_date_time_formatted( $day, false, ' ', true );					// echo format for first day
 			$last_show_day = $day;
 			$previosday    = $day;													// Set previos day for next loop
-			
+
 		} else  {										// Not first day
-			
-			if ( 
-				   wpbm_is_next_day( $previosday, $day ) 
-				|| wpbm_is_this_same_day( $previosday, $day   ) 
+
+			if (
+				   wpbm_is_next_day( $previosday, $day )
+				|| wpbm_is_this_same_day( $previosday, $day   )
 			) {											// Check  if $day next  day from previous
-				
+
 				$previosday = $day;													// Set previos day for next loop
 				$is_fin_at_end = true;
 			} else {
@@ -1951,8 +1991,8 @@ function wpbm_get_dates_short_format( $dates_sql_csv ) {                        
 				$previosday    = $day;													// Set previos day for next loop
 				$last_show_day = $day;
 			}
-		} 
-		
+		}
+
 	}
 
 	if ( $is_fin_at_end ) {

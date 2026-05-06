@@ -185,8 +185,8 @@ function wpbm_ics_get_listing_row( $evnt ) {
 	///////////////////////////////////////////////////////////////
 	// Listing Template
 	///////////////////////////////////////////////////////////////		
-	$row_template = get_wpbm_option( 'wpbm_listing_template' );                 
-	
+	$row_template = wpbm_sanitize_listing_template( get_wpbm_option( 'wpbm_listing_template' ) );
+
 	// Normilize
 	$replace_array = array();
 	foreach ( $evnt as $key => $value ) {
@@ -224,42 +224,42 @@ function wpbm_ics_get_listing_row( $evnt ) {
 
 	if ( ! empty( $replace_array['DATES'] ) )
 		$replace_array['DATES'] = wpbm_get_dates_short_format( $replace_array['DATES'] );
-	
+
 	$echo_row = wpbm_replace_shortcodes( $row_template, $replace_array );
-	
+
 	return $echo_row;
 }
 
 
-	
+
 /** Sort events by Check In days
- * 
+ *
  * @param array $ics_events_arr
  * @param string $sort_key		- Default: '_BOOKING_DATES'
  * @return array
- */	
+ */
 function wpbm_sort_events_by( $ics_events_arr, $sort_key = '_BOOKING_DATES' ) {
-		
+
 	// Get array with check in date
-	$check_in_arr = array();	
+	$check_in_arr = array();
 	foreach ( $ics_events_arr as $key => $event_arr) {
 		$event_dates = $event_arr[ $sort_key ];
 		sort( $event_dates );
 		$check_in_arr[ $key ] = $event_dates[ 0 ];
 	}
-	
+
 	asort( $check_in_arr, SORT_STRING );	// Sort an array and maintain index association
-	
+
 	// Sort inpur arr,  by keys from  previous check in array
 	$sorted_events_arr = array();
 	foreach ( $check_in_arr as $key => $event_check_in) {
 		$sorted_events_arr[] = $ics_events_arr[ $key ];
 	}
-	
+
 	return $sorted_events_arr;
 }
 
 
 
 // TODO:
-// - list events by days and not events ??? currently if (0) {...} 
+// - list events by days and not events ??? currently if (0) {...}

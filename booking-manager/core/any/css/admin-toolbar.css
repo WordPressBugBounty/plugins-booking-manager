@@ -454,7 +454,7 @@
 	-webkit-border-radius: 4px;
 }
 /* Border Color and Shadow */
-.wpdevelop .button:not([class*="button-primary"]),
+/*.wpdevelop .button:not([class*="button-primary"]),*/
 .wpdevelop .control-group .btn-toolbar .btn-group > .button:not([class*="button-primary"]),
 .wpdevelop .control-group .btn-toolbar .btn-group > input[type=text],
 .wpdevelop .control-group .btn-toolbar .btn-group > select,
