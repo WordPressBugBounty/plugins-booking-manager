@@ -7,11 +7,11 @@ Author: wpdevelop, oplugins
 Author URI: https://oplugins.com/
 Text Domain: booking-manager
 Domain Path: /languages/
-Version: 2.1.19
+Version: 2.1.20
 License: GPLv2 or later
 */
 
-/*  Copyright 2017-2025  www.oplugins.com  (email: info@oplugins.com),
+/*  Copyright 2017-2026  www.oplugins.com  (email: info@oplugins.com),
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) die('<h3>Direct access to this file do not allow!<
 // PRIMARY URL CONSTANTS                        //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
 
-if ( ! defined( 'WPBM_VERSION_NUM' ) )		define( 'WPBM_VERSION_NUM',		'2.1.19' );
+if ( ! defined( 'WPBM_VERSION_NUM' ) )		define( 'WPBM_VERSION_NUM',		'2.1.20' );
 
 // ..\home\siteurl\www\wp-content\plugins\plugin-name\wpbm-item.php
 if ( ! defined( 'WPBM_FILE' ) )             define( 'WPBM_FILE', __FILE__ ); 

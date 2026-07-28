@@ -393,6 +393,167 @@ function wpbc_add_vtimezone_once( $icalobj, $tzid, $year_start, $year_end, array
 // ---------------------------------------------------------------------------------------------------------------------
 // Export ICS here.
 // ---------------------------------------------------------------------------------------------------------------------
+// FixIn: 2.1.20.1
+/**
+ * Build the shortened booking-date representation used by the iCalendar exporter.
+ *
+ * This rebuild is required after child-resource dates have been removed from a
+ * parent-resource feed. It follows the same range-compression rules as the
+ * Booking Calendar booking-list API.
+ *
+ * @param array $booking_dates       Booking-date objects for one booking.
+ * @param int   $main_resource_id    Resource ID stored on the main booking row.
+ *
+ * @return array {
+ *     Shortened dates and their effective booking-resource IDs.
+ *
+ *     @type array $dates_short    Date values and range separators.
+ *     @type array $dates_short_id Effective resource IDs matching the date values.
+ * }
+ */
+function wpbc_ics_export_build_short_dates( $booking_dates, $main_resource_id ) {
+
+	$dates_short    = array();
+	$dates_short_id = array();
+	$last_date      = '';
+	$last_date_id   = '';
+	$last_token     = '';
+
+	foreach ( $booking_dates as $booking_date ) {
+		$current_date = $booking_date->booking_date;
+		$current_date_resource_id = ! empty( $booking_date->type_id )
+			? intval( $booking_date->type_id )
+			: intval( $main_resource_id );
+
+		if ( '' === $last_date ) {
+			$dates_short[]    = $current_date;
+			$dates_short_id[] = $current_date_resource_id;
+			$last_token       = $current_date;
+		} elseif ( wpbc_is_less_than_next_day( $current_date, $last_date, true ) ) {
+			if ( '-' !== $last_token ) {
+				$dates_short[]    = '-';
+				$dates_short_id[] = '';
+			}
+			$last_token = '-';
+		} else {
+			if ( $last_token !== $last_date ) {
+				$dates_short[]    = $last_date;
+				$dates_short_id[] = $last_date_id;
+			}
+
+			$dates_short[]    = ',';
+			$dates_short_id[] = '';
+			$dates_short[]    = $current_date;
+			$dates_short_id[] = $current_date_resource_id;
+			$last_token       = $current_date;
+		}
+
+		$last_date    = $current_date;
+		$last_date_id = $current_date_resource_id;
+	}
+
+	if ( ( '' !== $last_date ) && ( $last_token !== $last_date ) ) {
+		$dates_short[]    = $last_date;
+		$dates_short_id[] = $last_date_id;
+	}
+
+	return array(
+		'dates_short'    => $dates_short,
+		'dates_short_id' => $dates_short_id,
+	);
+}
+
+
+/**
+ * Limit a parent-resource iCalendar feed to dates occupying the parent itself.
+ *
+ * Business Large normally expands parent-resource booking-list queries to all
+ * child resources. The iCalendar export uses that shared query, so this helper
+ * removes child-resource dates after retrieval without changing Booking
+ * Calendar listings, calendar views, search, or capacity allocation.
+ *
+ * A NULL booking-date type ID represents the resource stored in the main
+ * booking row. An explicit type ID represents another capacity resource used
+ * by that booking.
+ *
+ * @param array $bookings_arr Booking-list API result.
+ * @param int   $resource_id  Resource requested by the iCalendar feed URL.
+ *
+ * @return array Filtered booking-list API result.
+ */
+function wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $resource_id ) {
+
+	$resource_id = intval( $resource_id );
+
+	if (
+		( $resource_id <= 0 )
+		|| ! class_exists( 'wpdev_bk_biz_l' )
+		|| ! function_exists( 'wpbc_br_cache' )
+		|| empty( $bookings_arr['bookings'] )
+	) {
+		return $bookings_arr;
+	}
+
+	$resource_list      = wpbc_br_cache()->get_resources();
+	$is_parent_resource = false;
+
+	foreach ( $resource_list as $resource_params ) {
+		$parent_resource_id = isset( $resource_params['parent'] ) ? intval( $resource_params['parent'] ) : 0;
+
+		if ( $resource_id === $parent_resource_id ) {
+			$is_parent_resource = true;
+			break;
+		}
+	}
+
+	if ( ! $is_parent_resource ) {
+		return $bookings_arr;
+	}
+
+	foreach ( $bookings_arr['bookings'] as $booking_id => $booking_obj ) {
+		$main_resource_id = isset( $booking_obj->booking_type ) ? intval( $booking_obj->booking_type ) : 0;
+		$parent_dates     = array();
+
+		if ( empty( $booking_obj->dates ) || ! is_array( $booking_obj->dates ) ) {
+			unset( $bookings_arr['bookings'][ $booking_id ] );
+			continue;
+		}
+
+		foreach ( $booking_obj->dates as $booking_date ) {
+			$date_resource_id = ! empty( $booking_date->type_id )
+				? intval( $booking_date->type_id )
+				: $main_resource_id;
+
+			if ( $resource_id === $date_resource_id ) {
+				$parent_dates[] = $booking_date;
+			}
+		}
+
+		if ( empty( $parent_dates ) ) {
+			unset( $bookings_arr['bookings'][ $booking_id ] );
+			continue;
+		}
+
+		usort(
+			$parent_dates,
+			static function ( $first_date, $second_date ) {
+				return strcmp( $first_date->booking_date, $second_date->booking_date );
+			}
+		);
+
+		$short_dates = wpbc_ics_export_build_short_dates( $parent_dates, $main_resource_id );
+
+		$booking_obj->dates          = $parent_dates;
+		$booking_obj->dates_short    = $short_dates['dates_short'];
+		$booking_obj->dates_short_id = $short_dates['dates_short_id'];
+	}
+
+	$bookings_arr['bookings_count'] = count( $bookings_arr['bookings'] );
+
+	return $bookings_arr;
+}
+
+
 /**
  * Define export ICS here.
  * For testing: http://beta/?feed=wpbm-ics
@@ -450,6 +611,8 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 
 	// Get array of bookings.
 	$bookings_arr = wpbc_api_get_bookings_arr( $param );
+	$export_resource_id = isset( $param['wh_booking_type'] ) ? intval( $param['wh_booking_type'] ) : 0;
+	$bookings_arr = wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $export_resource_id );
 
 	ob_start();
 
@@ -727,37 +890,37 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 
 
 /** Get Next day in MySQL format without time,  if current day  its Full day - ending with 00:00:00
- * 
+ *
  * @param string $mysql_date	- 2017-07-12 00:00:00
  * @return string				- 2017-07-13
  */
 function wpbm_get_next_date_if_it_full_date( $mysql_date ) {
-	
-	// Check if this date ending with 00:00:00 its means that it full  day,  
+
+	// Check if this date ending with 00:00:00 its means that it full  day,
 	// so we need to add 24 hours for ending at 23:59:59 (basically  00:00:00 of next  day) instead of at  start  of current day 00:00:00
 	if (   ( strlen( $mysql_date ) > 10 ) // , like 2017-07-12 00:00:00
-		&& ( substr( $mysql_date, 11 ) == '00:00:00' ) 
+		&& ( substr( $mysql_date, 11 ) == '00:00:00' )
 	) {
 
 		$mysql_date = date_i18n( "Y-m-d 00:00:00",  strtotime( $mysql_date ) );
 		$mysql_date = strtotime( $mysql_date );
-		$mysql_date = date_i18n( "Y-m-d",  strtotime( '+1 day', $mysql_date ) );											
-	} 
+		$mysql_date = date_i18n( "Y-m-d",  strtotime( '+1 day', $mysql_date ) );
+	}
 
-	return $mysql_date;	
+	return $mysql_date;
 }
 
 
 /** Get day in MySQL format without time,  if current day  its Full day - ending with 00:00:00
- * 
+ *
  * @param string $mysql_date	- 2017-07-12 00:00:00
  * @return string				- 2017-07-12
  */
 function wpbm_get_only_date_if_it_full_date( $mysql_date ) {
 
 	if (   ( strlen( $mysql_date ) > 10 ) // , like 2017-07-12 00:00:00
-		&& ( substr( $mysql_date, 11) == '00:00:00' ) 
-	) {					
+		&& ( substr( $mysql_date, 11) == '00:00:00' )
+	) {
 		$mysql_date = substr( $mysql_date, 0, 10 );
 	}
 

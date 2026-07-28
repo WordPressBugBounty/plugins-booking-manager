@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 7.0
-Stable tag: 2.1.19
+Stable tag: 2.1.20
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,10 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.20 =
+* **New** * Added support for the “Append extra day after imported checkout day” import option. When enabled together with “Append check out day”, imported .ics events will include one additional day after the imported checkout day before applying check-in/check-out times.
+* **Fix** Parent-resource .ics feeds in Booking Calendar Business Large now export only dates assigned to the parent resource, preventing bookings occupying child resources from being included.
+
 = 2.1.19 =
 * **Fix** Hardened Listing Template settings by restricting access to manage_options and sanitizing listing_template on save and render while preserving safe HTML/placeholders
 
