@@ -1091,35 +1091,56 @@ function wpbm_clear_events_from_exist_bookings( $bk_array ) {
 }
 
 
-	/** Check  if bookings exist  with  specific sync UID
-	 *
-	 * @global type $wpdb
-	 * @param array of UID to  check
-	 * @return array of exist UID
-	 */
-	function wpbm_get_exist_bookings_gid( $uid_arr ) {
-
-		$sql_sync_gid = implode( "','", $uid_arr );
-
-		$exist_bookings_guid = array();
-
-		if ( ! empty( $sql_sync_gid ) ) {
-			global $wpdb;
-
-			$my_sql = "SELECT * FROM {$wpdb->prefix}booking WHERE sync_gid IN ('{$sql_sync_gid}') AND trash != 1";      //FixIn: 2.0.9.3
-//debuge($sql_sync_gid);
-//$my_sql = "SELECT * FROM wp_booking WHERE sync_gid IN ('20180725T084834CEST-7457UwV469@www.bedandbreakfast.nl','20180725T084834CEST-7458pu3v0S@www.bedandbreakfast.nl','20180725T084834CEST-7459UUZa18@www.bedandbreakfast.nl','20180725T084834CEST-74593wh9ZE@www.bedandbreakfast.nl','20180725T084834CEST-7460heK1cD@www.bedandbreakfast.nl','20180725T084834CEST-7461IVWshP@www.bedandbreakfast.nl')";
-//debuge($my_sql);
-			$exist_bookings = $wpdb->get_results( $my_sql );
-
-//debuge( 'wpbc_show_debug', array( 'SQL: ', $my_sql, $exist_bookings ) );
-
-			foreach ( $exist_bookings as $bk ) {
-				$exist_bookings_guid[] = $bk->sync_gid;
-			}
-		}
-		return $exist_bookings_guid;
+/**
+ * Return existing non-trashed Booking Calendar synchronization UIDs.
+ *
+ * Event UIDs originate in remote iCalendar content. Each UID is therefore
+ * bound through a separate SQL placeholder instead of being interpolated into
+ * the dynamic IN clause.
+ *
+ * @global wpdb $wpdb WordPress database abstraction object.
+ *
+ * @param array $uid_arr Event UIDs to check.
+ *
+ * @return array Existing synchronization UIDs.
+ */
+function wpbm_get_exist_bookings_gid( $uid_arr ) {
+	if ( empty( $uid_arr ) || ! is_array( $uid_arr ) ) {
+		return array();
 	}
+
+	$uid_values = array();
+	foreach ( $uid_arr as $uid_value ) {
+		if ( ! is_scalar( $uid_value ) ) {
+			continue;
+		}
+
+		$uid_values[] = (string) $uid_value;
+	}
+
+	if ( empty( $uid_values ) ) {
+		return array();
+	}
+
+	global $wpdb;
+
+	$uid_placeholders = implode( ', ', array_fill( 0, count( $uid_values ), '%s' ) );
+	$query_values     = array_merge( $uid_values, array( 1 ) );
+
+	// The placeholder list contains only fixed %s tokens; the table name uses WordPress's trusted prefix.
+	$sql = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		"SELECT sync_gid FROM {$wpdb->prefix}booking WHERE sync_gid IN ({$uid_placeholders}) AND trash != %d",
+		$query_values
+	);
+
+	if ( ! is_string( $sql ) ) {
+		return array();
+	}
+
+	$existing_booking_uids = $wpdb->get_col( $sql );
+
+	return is_array( $existing_booking_uids ) ? $existing_booking_uids : array();
+}
 
 
 /** Trim  number of events in array

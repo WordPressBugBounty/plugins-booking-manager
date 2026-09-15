@@ -321,24 +321,29 @@ class WPBM_Page_Single extends WPBM_Page_Structure {
 			}		
 			.wpbm_listing_ics_bar .wpbm_listing_div {
 				float:left;
-				width:100%;				
+				width:100%;
+				display: flex;
+				flex-flow: row wrap;
+				gap: 10px;
+				justify-content: flex-start;
+				align-items: center;
 			}
 			.wpbm_listing_ics_bar .wpbm_listing_br_selection,
 			.wpbm_listing_ics_bar .wpbm_listing_url {
-				float:left;
-				width:28%;
-				height: 2em;
-				padding: 2px;
-				border-radius: 0;
-				margin:10px 5px 10px 1px;
-				/* FixIn: 2.0.13.1 */
-				min-height: 28px;
-				height: 28px;
-				margin: 9px 5px 10px 1px;
+
+
+
+
+
+
+
+
 			}
 			.wpbm_listing_ics_bar .wpbm_listing_url {
-				width:50%;				
-				padding: 2px 5px;
+				flex: 1 1 auto;
+				height: 40px;
+				max-width: Min( 500px, 100% );
+				margin-right: 20px;
 			}			
 			.wpbm_system_info_log {
 				font-size: 11px;

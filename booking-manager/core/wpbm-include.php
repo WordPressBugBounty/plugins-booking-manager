@@ -66,7 +66,7 @@ if( is_admin() ) {
 		require_once( WPBM_PLUGIN_DIR . '/core/admin/page-settings.php' );				// Settings page 
 			require_once( WPBM_PLUGIN_DIR . '/core/admin/api-settings.php' );			// Settings API
 		require_once( WPBM_PLUGIN_DIR . '/core/admin/page-settings-listing.php' );		// Settings > Listing page 
-	require_once WPBM_PLUGIN_DIR . '/core/admin/wpbm-toolbar-tiny.php';			// Tiny Toolbar - insert shortcodes
+
 //-----------------------------------------------------------------------------------------
 }
 /////////////////////////////////////////////////////////////////////////////////

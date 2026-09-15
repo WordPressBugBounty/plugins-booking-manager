@@ -1,0 +1,461 @@
+/**
+ * @version 1.0
+ * @package: Tabs
+ * @category: Admin UI
+ * @author wpdevelop
+ *
+ * @web-site https://oplugins.com/
+ * @email info@oplugins.com
+ *
+ * @modified 2015.04.10
+ */
+
+
+/* Top Tab Menu ***************************************************************/
+.wpbm_admin_page .wpdvlp-top-tabs {
+	margin: 0;
+	position: relative;
+	width: auto;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .wpdvlp-tabs-wrapper {
+	height: 28px;
+	margin-bottom: -1px;
+	width: 100%;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs {
+	float: left;
+	margin-left: 0;
+	padding-left: 0px;
+	/* border-bottom: none !important;*/
+	border-bottom: 1px solid #CCC;
+	width: 100%;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab {
+	border-radius: 3px 3px 0 0;
+	-moz-border-radius: 3px 3px 0 0;
+	-webkit-border-top-left-radius: 3px;
+	-webkit-border-top-right-radius: 3px;
+	border-color: #D5D5D5 #D5D5D5 #BBC #D5D5D5;
+	border-style: solid;
+	border-width: 1px 1px 0;
+	border-bottom: none;
+	display: inline-block;
+	background: none repeat scroll 0 0 #F4F4F4;
+	background: #DFDFDF;
+	color: #464646;
+	font-weight: 600;
+	font-size: 13px;
+	text-decoration: none;
+	text-shadow: 0 1px 0 #F1F1F1;
+	line-height: 18px;
+	padding: 4px 14px 6px;
+	padding: 5px 15px 5px;
+	margin: 0 5px 0 0;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .pull-right .nav-tab {
+	margin: 0 0 0 5px;
+}
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:hover,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:visited,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:link,
+.wpbm_admin_page .wpdvlp-sub-tabs a.nav-tab:hover,
+.wpbm_admin_page .wpdvlp-sub-tabs a.nav-tab:visited,
+.wpbm_admin_page .wpdvlp-sub-tabs a.nav-tab:link {
+	text-decoration: none;
+	outline: none;
+}
+/* IE6 */
+* html .wpbm_admin_page .wpdvlp-top-tabs .nav-tab {
+	padding: 4px 14px 5px 32px;
+}
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:hover {
+	color: #D54E21 !important;
+	background-color: #E7E7E7 !important;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab-active,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:hover,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:focus {
+	border-color: #777;
+	border-bottom-color: #AAB;
+	background: none repeat scroll 0 0 #7A7A88;
+	text-shadow: 0 0px 0 #111;
+	border-width: 1px;
+	color: #FFF;
+}
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:hover,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:focus {
+	color: #FFF !important;
+	background: none repeat scroll 0 0 #7A7A88 !important;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab-position-right {
+	float: right;
+	margin: 0 0 0 5px;
+}
+
+/* Sub Menu *******************************************************************/
+.wpbm_admin_page .wpdvlp-sub-tabs {
+	height: auto;
+	clear: both;
+
+	-moz-border-radius: 0px 0px 3px 3px;
+	-moz-box-shadow: 0 1px 1px #DDD;
+	-webkit-border-radius: 0px 0px 3px 3px;
+	-webkit-box-shadow: 0 1px 1px #DDD;
+	border-radius: 0px 0px 3px 3px;
+	box-shadow: 0 1px 1px #DDD;
+	background: #EEE;
+	border: 1px solid #e2e2e2;
+	margin: 0 0 20px;
+	padding: 5px;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .wpdvlp-tabs-wrapper {
+	height: auto;
+	margin-bottom: -1px;
+	width: 100%;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs {
+	border: none;
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin: 0;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab {
+	border: 1px solid #bbb;
+
+	background: #F5F5F5;
+	color: #777;
+	font-weight: 600;
+	font-size: 13px;
+	height: 18px;
+	line-height: 16px;
+
+	padding: 6px 10px 4px;
+	margin: 5px 2px -4px;
+	border-bottom: none;
+
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	box-sizing: content-box;
+	font-weight: 400;
+font-size: 14px;
+text-shadow: none !important;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs .nav-tab input[type="checkbox"],
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab input[type="checkbox"] {
+	margin: 0 0 0 8px !important;
+	vertical-align: middle;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected:hover {
+	border-color: #777;
+	border-bottom-color: #AAB;
+	text-shadow: 0 0px 0 #111;
+	border-width: 1px;
+	color: #FFF !important;
+	background: none repeat scroll 0 0 #7A7A88 !important;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs .nav-tab.wpdevelop-tab-disabled,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-disabled {
+	color: #bbb;
+	text-shadow: 0 -1px 1px #fff;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs .nav-tab.nav-tab-active.wpdevelop-tab-disabled,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected.wpdevelop-submenu-tab-disabled {
+	color: #555 !important;
+	text-shadow: 0 0 1px #aaa;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.go-to-link,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.go-to-link:hover,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.go-to-link:active {
+	box-shadow: 0 0 0;
+	font-weight: 400;
+	border: none;
+	background: transparent !important;
+	margin: 0 0 -4px;
+	box-shadow: none;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.go-to-link span {
+	border-bottom: 1px dashed;
+	padding: 0 2px;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .wpbm_submit_button {
+	float: right;
+	margin: 0px 5px 0px 0px;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .wpdevelop-submenu-tab-separator-vertical {
+	-moz-box-shadow: 1px 0px 0px #FEFEFE;
+	-webkit-box-shadow: 1px 0px 0px #FEFEFE;
+	box-shadow: 1px 0px 0px #FEFEFE;
+	border-right: #BBB solid 1px;
+	border-left: #CCC solid 1px;
+	background: none;
+	color: #777;
+	padding: 5px 0px 5px;
+	margin: 10px 15px 0px 10px;
+}
+.clear-for-mobile {
+	display: none;
+}
+/* iPad mini and all iPhones  and other Mobile Devices */
+@media (max-width: 782px) {
+	/* Settings Top TABS */
+	.wpbm_admin_page .wpdvlp-top-tabs .nav-tab {
+		padding: 10px 15px 5px;
+		padding: 8px 15px 8px;
+		font-size: 1.2em;
+	}
+	.wpbm_admin_page .wpdvlp-top-tabs .nav-tab .nav-tab-text {
+		display: none;
+	}
+	.wpbm_admin_page .wpdevelop-submenu-tab.nav-tab {
+		border-radius: 0 !important;
+		-moz-border-radius: 0 !important;
+		-webkit-border-radius: 0 !important;
+		display: block;
+		float: none;
+		width: auto;
+		clear: both;
+		vertical-align: middle !important;
+		border-bottom: 1px solid #bbb !important;
+		margin: -1px 0 0 !important;
+		padding: 0px 10px !important;
+		height: 3em !important;
+		line-height: 3em !important;
+	}
+	.wpbm_admin_page .wpdevelop-submenu-tab-separator-vertical {
+		display: none;
+	}
+	.wpbm_admin_page .wpdevelop-submenu-tab.go-to-link {
+		border-bottom: none !important;
+		width: auto;
+	}
+	.wpbm_admin_page .clear-for-mobile {
+		clear: both;
+		width: 100%;
+		height: 10px;
+		display: block;
+	}
+	.wpbm_admin_page .wpdevelop-submenu-tab input[type="checkbox"] {
+		margin: -4px 0 0 8px !important;
+		vertical-align: middle !important;
+		padding: 0px !important;
+	}
+}
+
+
+/*
+ * New design 2.0 of Booking admin panel with  white colors and bottom  borders for selected elements
+ *
+ * 2023-03-26
+ *
+ */
+/* Set  general background color for menu  tab as white */
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs {
+	background: #fff;
+	padding: 0 0 0;
+	border-radius: 2px;
+	/* ?? */
+}
+
+/* Navigation  tabs */
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab {
+	background: transparent;
+	border: none;
+	text-shadow: none;
+	color: #555;
+	font-size: 15px;
+	border-bottom: 4px solid transparent;
+	padding: 9px 20px;
+	margin: 0 1px;
+}
+
+/* Menu Icons */
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab .menu_icon::before {
+	font-size: 14px;
+}
+
+/* Active navigation tab */
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab-active,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:hover,
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:focus {
+	border-bottom: 4px solid #1e7bc7;
+}
+
+/* Active navigation tab 	:	Focus*/
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab-active:focus {
+	color: inherit !important;
+	background: transparent !important;
+	text-shadow: none;
+	outline: none;
+	border-radius: 0;
+	box-shadow: none;
+}
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:focus {
+	border-radius: 0;
+}
+
+/* Tab 						:	hover */
+.wpbm_admin_page .wpdvlp-top-tabs a.nav-tab:hover {
+	color: #D54E21 !important;
+	background-color: transparent !important;
+	border-bottom-color: #d54e21;
+}
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tab-active:hover {
+	color: #FFF !important;
+	background: #7A7A88 !important;
+}
+
+/* Sub tabs */
+/* ../core/any/css/admin-menu.css */
+.wpbm_admin_page .wpdvlp-sub-tabs {
+	border: 1px solid #dadada;
+	border-top: 1px solid #ededed;
+	background: #f7f7f7;
+	height: auto;
+	clear: both;
+	border-radius: 0px 0px 2px 2px;
+	box-shadow: none;
+	margin: 0;
+	padding: 5px;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .wpdvlp-tabs-wrapper {
+	margin-bottom: -1px;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab {
+	border: none;
+	border-right: 1px dashed #7a7a88;
+	border-bottom: 3px solid #F7F7F7;
+	border-radius: 0;
+	background: #F7F7F7;
+	color: #777;
+	height: 20px;
+	padding: 5px 15px 4px;
+	margin: 0 0 -4px;
+	box-sizing: content-box;
+	text-shadow: none;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected {
+	color: #777 !important;
+	border-bottom: 3px solid #7AC71E;
+	background-color: transparent !important;
+}
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab:hover,
+.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected:hover {
+	color: #D54E21 !important;
+	background-color: transparent !important;
+	border-bottom: 3px solid #d54e21;
+}
+
+@media (max-width: 782px) {
+	.wpbm_admin_page .wpdevelop-submenu-tab.nav-tab {
+		height: 35px !important;
+		line-height: 28px !important;
+		width: 100%;
+		clear: both;
+		border: none !important;
+		border-left: 3px solid #f7f7f7 !important;
+		padding: 2px 9px !important;
+		box-sizing: border-box !important;
+	}
+	.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected {
+		border-left: 3px solid #7AC71E !important;
+		border-bottom: none;
+	}
+	.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab:hover,
+	.wpbm_admin_page .wpdvlp-sub-tabs .nav-tabs .nav-tab.wpdevelop-submenu-tab-selected:hover {
+		color: #D54E21 !important;
+		background-color: transparent !important;
+		border-left: 3px solid #d54e21 !important;
+	}
+}
+
+.wpbm_admin_page .wpdvlp-top-tabs .nav-tabs {
+	border: none;
+	border: 1px solid #d6d6d6;
+}
+
+/**********************************************************************************************************************/
+/* Booking Listing | Availability page - little smaller */
+
+/* Vertical  switcher  on  Booking Listing  and Calendar  overview pages */
+.wpbm_admin_page .wpdevelop .btn-group-vertical {
+	width: 44px;
+	margin: 0 0 0 -1px;
+	border: 1px solid #d8d8d8;
+}
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button {
+	box-shadow: none;
+	text-align: center;
+	height: 45.5px;
+	line-height: 46px;
+	border-radius: 0 !important;
+	border: none;
+	border-left: 3px solid #f7f7f7;
+}
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button.active {
+	border-left: 3px solid #7AC71E;
+	-ms-transform: none;
+	transform: none;
+}
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button:hover,
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button.active:hover {
+	border-left: 3px solid #D54E21;
+	-ms-transform: none;
+	transform: none;
+}
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button + .button,
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .button + .btn-group,
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .btn-group + .button,
+.wpbm_admin_page .wpdevelop .btn-group-vertical > .btn-group + .btn-group {
+	margin-top: 0;
+}
+
+
+/**  Resource Tables */
+.wpbm_admin_page .wpdevelop .table > thead > tr > th,
+.wpbm_admin_page .wpdevelop .table > tbody > tr > th,
+.wpbm_admin_page .wpdevelop .table > tfoot > tr > th,
+.wpbm_admin_page .wpdevelop .table > thead > tr > td,
+.wpbm_admin_page .wpdevelop .table > tbody > tr > td,
+.wpbm_admin_page .wpdevelop .table > tfoot > tr > td {
+	padding: 10px 7px;
+}
+.wpbm_admin_page .wpdevelop .table > thead > tr > th,
+.wpbm_admin_page .wpdevelop .table > tbody > tr > th,
+.wpbm_admin_page .wpdevelop .table > tfoot > tr > th {
+	font-size: 14px;
+	/*line-height: 30px;*/
+}
+.wpbm_admin_page .wpdevelop .table > thead > tr > th {
+	border-bottom: 1px solid #dddddd;
+}
+.wpbm_admin_page .wpdevelop .table-striped {
+	background-color: #f3f3f3;
+}
+.wpbm_admin_page .wpdevelop .table-striped > tbody > tr:nth-of-type(2n+1) {
+	background-color: #f8f8f8;
+}
+
+
+div.wpbm_admin_page  .visibility_container {
+  display: flex !important;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px;
+}
+div.wpbm_admin_page  .visibility_container * {
+  font-size:14px;
+  font-weight: 400;
+}
+.input-group {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+#select_form_help_shortcode_toolbar {
+  margin-right: 1em;
+}

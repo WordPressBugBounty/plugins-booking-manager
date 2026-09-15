@@ -1284,6 +1284,30 @@ function get_wpbm_current_user_id() {
 }
 
 
+/**
+ * Resolve a requested per-user settings target to the current user.
+ *
+ * Booking Manager's established AJAX payloads include a user ID. The value is
+ * retained for request compatibility, but it must never authorize a write to
+ * another user's preferences.
+ *
+ * @param mixed $requested_user_id User ID supplied by the request.
+ *
+ * @return int Current user ID when the request target matches; otherwise 0.
+ */
+function wpbm_get_authorized_user_option_target_id( $requested_user_id ) {
+	$current_user_id = get_wpbm_current_user_id();
+
+	if ( 0 === $current_user_id || ! is_scalar( $requested_user_id ) ) {
+		return 0;
+	}
+
+	$requested_user_id = absint( wp_unslash( (string) $requested_user_id ) );
+
+	return ( $current_user_id === $requested_user_id ) ? $current_user_id : 0;
+}
+
+
 /** Check  if Current User have specific Role
  *
  * @return bool Whether the current user has the given capability.

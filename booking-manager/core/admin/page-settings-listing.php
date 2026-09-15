@@ -103,7 +103,7 @@ class WPBM_Page_SettingsListing extends WPBM_Page_Structure {
         // Toolbar /////////////////////////////////////////////////////////////
         wpbm_bs_toolbar_sub_html_container_start();
 
-        ?><span class="wpdevelop"><div class="visibility_container clearfix-height" style="display:block;"><?php
+        ?><span class="wpdevelop0"><div class="visibility_container clearfix-height" style="display:block;"><?php
 
             wpbm_js_for_items_page();                                            // JavaScript functions
 

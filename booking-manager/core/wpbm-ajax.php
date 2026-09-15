@@ -73,25 +73,67 @@ function wpbm_check_locale_for_ajax() {
 
 
 function wpbm_ajax_WPBM_USER_SAVE_WINDOW_STATE() {
-        
-//    if ( ! wpbm_check_nonce_in_admin_panel() ) return false;
-//    update_user_option($_POST['user_id'],'wpbm_win_' . $_POST['window'] ,$_POST['is_closed']);
-    
-    if ( ! wpbm_check_nonce_in_admin_panel() ) return false;
-    update_user_option( (int) $_POST['user_id'], 'wpbm_win_' . esc_attr( $_POST['window'] ) , (int) $_POST['is_closed'] );
-    wp_send_json_success();
+	if ( ! wpbm_check_nonce_in_admin_panel() ) {
+		return false;
+	}
+
+	$requested_user_id = isset( $_POST['user_id'] ) && is_scalar( $_POST['user_id'] )
+		? absint( wp_unslash( (string) $_POST['user_id'] ) )
+		: 0;
+	$authorized_user_id = wpbm_get_authorized_user_option_target_id( $requested_user_id );
+	if ( 0 === $authorized_user_id ) {
+		status_header( 403 );
+		wp_send_json_error( array( 'message' => __( 'You can update only your own interface preferences.', 'booking-manager' ) ) );
+	}
+
+	$window_name = isset( $_POST['window'] ) && is_scalar( $_POST['window'] )
+		? sanitize_text_field( wp_unslash( (string) $_POST['window'] ) )
+		: '';
+	if ( '' === $window_name ) {
+		status_header( 400 );
+		wp_send_json_error( array( 'message' => __( 'The interface preference is not valid.', 'booking-manager' ) ) );
+	}
+
+	$is_closed = isset( $_POST['is_closed'] ) && is_scalar( $_POST['is_closed'] )
+		? (int) wp_unslash( (string) $_POST['is_closed'] )
+		: 0;
+	update_user_option( $authorized_user_id, 'wpbm_win_' . $window_name, $is_closed );
+	wp_send_json_success();
 }
 
 
 /** Save Custom User Data */
 function wpbm_ajax_WPBM_USER_SAVE_CUSTOM_DATA() {
-            
-    if ( ! wpbm_check_nonce_in_admin_panel() ) return false;
+	if ( ! wpbm_check_nonce_in_admin_panel() ) {
+		return false;
+	}
+
+	$requested_user_id = isset( $_POST['user_id'] ) && is_scalar( $_POST['user_id'] )
+		? absint( wp_unslash( (string) $_POST['user_id'] ) )
+		: 0;
+	$authorized_user_id = wpbm_get_authorized_user_option_target_id( $requested_user_id );
+	if ( 0 === $authorized_user_id ) {
+		status_header( 403 );
+		wp_send_json_error( array( 'message' => __( 'You can update only your own interface preferences.', 'booking-manager' ) ) );
+	}
+
+	$data_name = isset( $_POST['data_name'] ) && is_scalar( $_POST['data_name'] )
+		? sanitize_text_field( wp_unslash( (string) $_POST['data_name'] ) )
+		: '';
+	$data_value = isset( $_POST['data_value'] ) && is_scalar( $_POST['data_value'] )
+		? wp_unslash( (string) $_POST['data_value'] )
+		: '';
+	if ( '' === $data_name ) {
+		status_header( 400 );
+		wp_send_json_error( array( 'message' => __( 'The interface preference is not valid.', 'booking-manager' ) ) );
+	}
+	$is_reload = ! empty( $_POST['is_reload'] );
+
     /*  Exmaple of $_POST:
         [data_name] => add_wpbm_calendar_options
         [data_value] => calendar_months_count=1&calendar_months_num_in_1_row=1&calendar_width=500px&calendar_cell_height
      */
-    $post_param = explode( '&', $_POST['data_value'] );                         // "&" was set by jQuery.param( data_params ) in client side.
+	$post_param = explode( '&', $data_value );                                   // "&" was set by jQuery.param( data_params ) in client side.
     $data_to_save = array();
     foreach ( $post_param as $param ) {
         $param_data = explode( '=', $param );
@@ -109,12 +151,12 @@ function wpbm_ajax_WPBM_USER_SAVE_CUSTOM_DATA() {
      */
 
     // Save Custom User Data
-    update_user_option( (int) $_POST['user_id'], 'wpbm_custom_' . esc_attr( $_POST['data_name'] ) ,  serialize( $data_to_save ) ); 
+	update_user_option( $authorized_user_id, 'wpbm_custom_' . $data_name, serialize( $data_to_save ) );
 
     ?>  <script type="text/javascript">            
             var my_message = '<?php echo html_entity_decode( esc_js( __('Saved' , 'booking-manager') ),ENT_QUOTES) ; ?>';
             wpbm_admin_show_message( my_message, 'success', 1000 ); 
-            <?php if ( ! empty( $_POST['is_reload'] ) == 1 ) { ?>
+            <?php if ( $is_reload ) { ?>
             setTimeout(function ( ) {location.reload(true);} ,1500);
             <?php } ?>
         </script> <?php

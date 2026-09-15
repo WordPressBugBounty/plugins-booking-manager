@@ -4,8 +4,8 @@ Donate link: https://oplugins.com/plugins/booking-manager
 Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
-Tested up to: 7.0
-Stable tag: 2.1.20
+Tested up to: 7.1
+Stable tag: 2.1.21
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.21 =
+* **Security** Hardened iCalendar import UID lookups and restricted interface preference updates to the signed-in user's own settings. Thanks to Mohamed Bassia and Choriyev Qahramon (ciprobe) for responsible disclosure.
+
 = 2.1.20 =
 * **New** * Added support for the “Append extra day after imported checkout day” import option. When enabled together with “Append check out day”, imported .ics events will include one additional day after the imported checkout day before applying check-in/check-out times.
 * **Fix** Parent-resource .ics feeds in Booking Calendar Business Large now export only dates assigned to the parent resource, preventing bookings occupying child resources from being included.

@@ -81,18 +81,34 @@ final class WPBM_Dismiss {
 	 */
 	public function wpbm_ajax_WPBM_DISMISS() {
 		
-		if ( ! isset( $_POST['element_id'] ) || empty( $_POST['element_id'] ) ) {
-			exit;
+		$element_id = isset( $_POST['element_id'] ) && is_scalar( $_POST['element_id'] )
+			? sanitize_text_field( wp_unslash( (string) $_POST['element_id'] ) )
+			: '';
+		if ( '' === $element_id ) {
+			status_header( 400 );
+			wp_send_json_error( array( 'message' => __( 'The dismissible interface element is not valid.', 'booking-manager' ) ) );
 		}
 		
-		$action_name = $_POST['element_id'] . '_wpbmnonce';
+		$action_name = $element_id . '_wpbmnonce';
 		$nonce_post_key = 'nonce';
 
 		// Check Security
 		$result = check_ajax_referer( $action_name, $nonce_post_key );
 
+		$requested_user_id = isset( $_POST['user_id'] ) && is_scalar( $_POST['user_id'] )
+			? absint( wp_unslash( (string) $_POST['user_id'] ) )
+			: 0;
+		$authorized_user_id = wpbm_get_authorized_user_option_target_id( $requested_user_id );
+		if ( 0 === $authorized_user_id ) {
+			status_header( 403 );
+			wp_send_json_error( array( 'message' => __( 'You can update only your own interface preferences.', 'booking-manager' ) ) );
+		}
+
 		// Save status
-		update_user_option(  (int) $_POST[ 'user_id' ], 'wpbm_win_' . esc_attr( $_POST[ 'element_id' ] ), (int) $_POST[ 'is_closed' ]  );
+		$is_closed = isset( $_POST['is_closed'] ) && is_scalar( $_POST['is_closed'] )
+			? (int) wp_unslash( (string) $_POST['is_closed'] )
+			: 0;
+		update_user_option( $authorized_user_id, 'wpbm_win_' . $element_id, $is_closed );
 
 		// FixIn: 2.0.2.1		//Fix: We need to  comment this line,  because previously its possible that  we already  sent some messages,  and its does not correct  json format in this case.
 								//Fix: of showing "parsererror ~ SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data"

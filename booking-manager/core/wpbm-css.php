@@ -62,13 +62,13 @@ class WPBM_CSS extends WPBM_JS_CSS{
             //wp_enqueue_style( 'wpbm-chosen',                wpbm_plugin_url( '/assets/libs/chosen/chosen.css' ),        array(), WPBM_VERSION_NUM);
             wp_enqueue_style( 'wpbm-admin-support',         wpbm_plugin_url( '/core/any/css/admin-support.css' ),       array(), WPBM_VERSION_NUM);            
             wp_enqueue_style( 'wpbm-admin-menu',            wpbm_plugin_url( '/core/any/css/admin-menu.css' ),          array(), WPBM_VERSION_NUM);
-            wp_enqueue_style( 'wpbm-admin-toolbar',         wpbm_plugin_url( '/core/any/css/admin-toolbar.css' ),       array(), WPBM_VERSION_NUM);
             wp_enqueue_style( 'wpbm-settings-page',         wpbm_plugin_url( '/core/any/css/settings-page.css' ),       array(), WPBM_VERSION_NUM);            
             wp_enqueue_style( 'wpbm-admin-listing-table',   wpbm_plugin_url( '/core/any/css/admin-listing-table.css' ), array(), WPBM_VERSION_NUM);            
             wp_enqueue_style( 'wpbm-br-table',              wpbm_plugin_url( '/core/any/css/admin-br-table.css' ),      array(), WPBM_VERSION_NUM);                        
             wp_enqueue_style( 'wpbm-admin-modal-popups',    wpbm_plugin_url( '/css/modal.css' ),                        array(), WPBM_VERSION_NUM);            
             wp_enqueue_style( 'wpbm-admin-pages',           wpbm_plugin_url( '/css/admin.css' ),                        array(), WPBM_VERSION_NUM);            
             wp_enqueue_style( 'wpbm-css-print',             wpbm_plugin_url( '/css/print.css' ),                        array(), WPBM_VERSION_NUM);
+			wp_enqueue_style( 'wpbm-admin-skin-modern_1',   wpbm_plugin_url( '/css/admin-skin-modern_1.css' ),      array( 'wpbm-admin-pages' ), WPBM_VERSION_NUM ); //FixIn: 2.0.3.1  9.5.5.1
         }
 
 		global $wp_version;
