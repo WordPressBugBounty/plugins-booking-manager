@@ -77,6 +77,17 @@ class  WPBM_Settings_API_General extends WPBM_Settings_API {
                             , 'group'       => 'wpbm_listing'
         );
 
+		if ( class_exists( 'wpdev_bk_biz_l' ) ) {
+			$this->fields['wpbm_is_export_parent_with_children'] = array(
+							'type'          => 'checkbox'
+							, 'default'     => $default_options_values['wpbm_is_export_parent_with_children']
+							, 'title'       => __('Include child resources in parent .ics feeds' , 'booking-manager')
+							, 'label'       => __('Export bookings from the parent resource and all its direct child resources through the parent resource .ics feed.' , 'booking-manager')
+							, 'description' => __('This applies to capacity-based parent resources. Child and single-resource .ics feeds are not changed.' , 'booking-manager')
+							, 'group'       => 'wpbm_listing'
+		);
+		}
+
 
         $this->fields['wpbm_start_day_weeek'] = array(   
                                     'type'          => 'select'

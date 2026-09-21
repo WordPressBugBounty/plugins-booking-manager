@@ -5,7 +5,7 @@ Tags: booking calendar, events, ics, google calendar, iCalendar
 Requires at least: 4.0
 Requires PHP: 5.6
 Tested up to: 7.1
-Stable tag: 2.1.21
+Stable tag: 2.1.22
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ That's it!
 5. **Inserting shortcode** - popup dialog for easy configuring and inserting plugin shortcode into content of post
 
 == Changelog ==
+= 2.1.22 =
+* **Improvement** Added an option to include bookings from child capacity resources in a parent resource's .ics feed, while preserving parent-only export as the default.
+
 = 2.1.21 =
 * **Security** Hardened iCalendar import UID lookups and restricted interface preference updates to the signed-in user's own settings. Thanks to Mohamed Bassia and Choriyev Qahramon (ciprobe) for responsible disclosure.
 

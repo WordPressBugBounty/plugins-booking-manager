@@ -434,15 +434,16 @@ function wpbm_ics_import_start( $attr ) {
 			}
 		}
 
-		// Email
-		$email = 'blank@wpbookingmanager.com';																						//get_option ( 'admin_email' );
+		// Email.
+		$email = 'blank@wpbookingmanager.com';                                                                                        //get_option ( 'admin_email' );
 		if ( ! empty( $ics_event['_BOOKING_ATTENDEE'] ) ) {
 			$email = str_replace( 'mailto:', '', $ics_event['_BOOKING_ATTENDEE'] );
 			if ( ! is_email( $email ) ) {
 				$email = 'blank@wpbookingmanager.com';
 			}
 		}
-		$bk_data [ 'email' ] = array( 'value' => $email, 'type' => 'email' );
+		$email             = apply_filters( 'wpbm_replace_mailto_for__booking_attendee', $email );
+		$bk_data ['email'] = array( 'value' => $email, 'type' => 'email' );
 
 		// Optional Start  and End times
 		$start_time = substr( $ics_event[ '_BOOKING_DATES' ][ 0 ], 11 );

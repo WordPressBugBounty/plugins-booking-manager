@@ -397,9 +397,9 @@ function wpbc_add_vtimezone_once( $icalobj, $tzid, $year_start, $year_end, array
 /**
  * Build the shortened booking-date representation used by the iCalendar exporter.
  *
- * This rebuild is required after child-resource dates have been removed from a
- * parent-resource feed. It follows the same range-compression rules as the
- * Booking Calendar booking-list API.
+ * This rebuild is required after booking dates have been limited to the
+ * resources authorized for an iCalendar feed. It follows the same
+ * range-compression rules as the Booking Calendar booking-list API.
  *
  * @param array $booking_dates       Booking-date objects for one booking.
  * @param int   $main_resource_id    Resource ID stored on the main booking row.
@@ -465,54 +465,160 @@ function wpbc_ics_export_build_short_dates( $booking_dates, $main_resource_id ) 
 
 
 /**
- * Limit a parent-resource iCalendar feed to dates occupying the parent itself.
+ * Get one resource ID from the iCalendar export query.
  *
- * Business Large normally expands parent-resource booking-list queries to all
- * child resources. The iCalendar export uses that shared query, so this helper
- * removes child-resource dates after retrieval without changing Booking
- * Calendar listings, calendar views, search, or capacity allocation.
+ * The scope expansion must only run for a feed URL that requested one resource.
+ * Existing internal callers may pass a comma-separated resource list, which is
+ * left untouched and must not be reinterpreted as one parent-resource feed.
  *
- * A NULL booking-date type ID represents the resource stored in the main
- * booking row. An explicit type ID represents another capacity resource used
- * by that booking.
+ * @param mixed $resource_query Resource selector received by the exporter.
  *
- * @param array $bookings_arr Booking-list API result.
- * @param int   $resource_id  Resource requested by the iCalendar feed URL.
- *
- * @return array Filtered booking-list API result.
+ * @return int Positive resource ID, or zero when the query is not one ID.
  */
-function wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $resource_id ) {
+function wpbc_ics_export_get_requested_resource_id( $resource_query ) {
 
-	$resource_id = intval( $resource_id );
+	if ( ! is_scalar( $resource_query ) ) {
+		return 0;
+	}
+
+	$resource_query = trim( (string) $resource_query );
+
+	if ( ( '' === $resource_query ) || ( 1 !== preg_match( '/^[0-9]+$/', $resource_query ) ) ) {
+		return 0;
+	}
+
+	return absint( $resource_query );
+}
+
+
+/**
+ * Resolve the resource IDs authorized for one iCalendar feed.
+ *
+ * Parent feeds always include the requested parent. When the opt-in setting is
+ * enabled, direct capacity children owned by the same MultiUser account are
+ * added. Descendants are not traversed because Booking Calendar capacity uses
+ * a direct parent-child relationship.
+ *
+ * @param int  $resource_id      Resource requested by the iCalendar feed URL.
+ * @param bool $include_children Whether direct child resources may be included.
+ *
+ * @return array {
+ *     Resolved export scope.
+ *
+ *     @type bool  $is_parent    Whether the requested resource has direct children.
+ *     @type array $resource_ids Requested resource ID and any authorized child IDs.
+ * }
+ */
+function wpbc_ics_export_get_resource_scope( $resource_id, $include_children = false ) {
+
+	$resource_id = absint( $resource_id );
+	$scope       = array(
+		'is_parent'    => false,
+		'resource_ids' => ( $resource_id > 0 ) ? array( $resource_id ) : array(),
+	);
 
 	if (
 		( $resource_id <= 0 )
 		|| ! class_exists( 'wpdev_bk_biz_l' )
 		|| ! function_exists( 'wpbc_br_cache' )
-		|| empty( $bookings_arr['bookings'] )
 	) {
-		return $bookings_arr;
+		return $scope;
 	}
 
-	$resource_list      = wpbc_br_cache()->get_resources();
-	$is_parent_resource = false;
+	$resource_cache = wpbc_br_cache();
 
-	foreach ( $resource_list as $resource_params ) {
-		$parent_resource_id = isset( $resource_params['parent'] ) ? intval( $resource_params['parent'] ) : 0;
+	if ( ! is_object( $resource_cache ) || ! method_exists( $resource_cache, 'get_resources' ) ) {
+		return $scope;
+	}
 
-		if ( $resource_id === $parent_resource_id ) {
-			$is_parent_resource = true;
+	$resource_list = $resource_cache->get_resources();
+
+	if ( ! is_array( $resource_list ) ) {
+		return $scope;
+	}
+
+	$parent_owner_id = null;
+
+	foreach ( $resource_list as $resource_key => $resource_params ) {
+		if ( ! is_array( $resource_params ) ) {
+			continue;
+		}
+
+		$current_resource_id = isset( $resource_params['id'] )
+			? absint( $resource_params['id'] )
+			: absint( $resource_key );
+
+		if ( $resource_id === $current_resource_id ) {
+			$parent_owner_id = isset( $resource_params['users'] ) ? absint( $resource_params['users'] ) : null;
 			break;
 		}
 	}
 
-	if ( ! $is_parent_resource ) {
+	foreach ( $resource_list as $resource_key => $resource_params ) {
+		if ( ! is_array( $resource_params ) ) {
+			continue;
+		}
+
+		$parent_resource_id = isset( $resource_params['parent'] ) ? absint( $resource_params['parent'] ) : 0;
+
+		if ( $resource_id !== $parent_resource_id ) {
+			continue;
+		}
+
+		$scope['is_parent'] = true;
+
+		if ( ! $include_children ) {
+			continue;
+		}
+
+		$child_owner_id = isset( $resource_params['users'] ) ? absint( $resource_params['users'] ) : null;
+
+		if ( ( null !== $child_owner_id ) && ( null === $parent_owner_id || $parent_owner_id !== $child_owner_id ) ) {
+			continue;
+		}
+
+		$child_resource_id = isset( $resource_params['id'] )
+			? absint( $resource_params['id'] )
+			: absint( $resource_key );
+
+		if ( $child_resource_id > 0 ) {
+			$scope['resource_ids'][] = $child_resource_id;
+		}
+	}
+
+	$scope['resource_ids'] = array_values( array_unique( array_map( 'absint', $scope['resource_ids'] ) ) );
+
+	return $scope;
+}
+
+
+/**
+ * Limit bookings and booking dates to an iCalendar resource scope.
+ *
+ * A NULL booking-date type ID represents the resource stored in the main
+ * booking row. An explicit type ID represents another capacity resource used
+ * by that booking. Identical timestamps inside one booking are collapsed so a
+ * booking occupying multiple capacity units still exports as one event; dates
+ * from different booking IDs are never merged.
+ *
+ * @param array $bookings_arr Booking-list API result.
+ * @param array $resource_ids Resource IDs allowed in the feed.
+ *
+ * @return array Filtered booking-list API result.
+ */
+function wpbc_ics_export_filter_bookings_by_resource_scope( $bookings_arr, $resource_ids ) {
+
+	$resource_ids = array_values( array_filter( array_unique( array_map( 'absint', (array) $resource_ids ) ) ) );
+
+	if ( empty( $resource_ids ) || empty( $bookings_arr['bookings'] ) || ! is_array( $bookings_arr['bookings'] ) ) {
 		return $bookings_arr;
 	}
 
+	$allowed_resource_ids = array_fill_keys( $resource_ids, true );
+
 	foreach ( $bookings_arr['bookings'] as $booking_id => $booking_obj ) {
-		$main_resource_id = isset( $booking_obj->booking_type ) ? intval( $booking_obj->booking_type ) : 0;
-		$parent_dates     = array();
+		$main_resource_id = isset( $booking_obj->booking_type ) ? absint( $booking_obj->booking_type ) : 0;
+		$scoped_dates     = array();
 
 		if ( empty( $booking_obj->dates ) || ! is_array( $booking_obj->dates ) ) {
 			unset( $bookings_arr['bookings'][ $booking_id ] );
@@ -521,29 +627,33 @@ function wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $resour
 
 		foreach ( $booking_obj->dates as $booking_date ) {
 			$date_resource_id = ! empty( $booking_date->type_id )
-				? intval( $booking_date->type_id )
+				? absint( $booking_date->type_id )
 				: $main_resource_id;
 
-			if ( $resource_id === $date_resource_id ) {
-				$parent_dates[] = $booking_date;
+			if ( ! isset( $allowed_resource_ids[ $date_resource_id ] ) || ! isset( $booking_date->booking_date ) ) {
+				continue;
 			}
+
+			$scoped_dates[ (string) $booking_date->booking_date ] = $booking_date;
 		}
 
-		if ( empty( $parent_dates ) ) {
+		if ( empty( $scoped_dates ) ) {
 			unset( $bookings_arr['bookings'][ $booking_id ] );
 			continue;
 		}
 
+		$scoped_dates = array_values( $scoped_dates );
+
 		usort(
-			$parent_dates,
+			$scoped_dates,
 			static function ( $first_date, $second_date ) {
 				return strcmp( $first_date->booking_date, $second_date->booking_date );
 			}
 		);
 
-		$short_dates = wpbc_ics_export_build_short_dates( $parent_dates, $main_resource_id );
+		$short_dates = wpbc_ics_export_build_short_dates( $scoped_dates, $main_resource_id );
 
-		$booking_obj->dates          = $parent_dates;
+		$booking_obj->dates          = $scoped_dates;
 		$booking_obj->dates_short    = $short_dates['dates_short'];
 		$booking_obj->dates_short_id = $short_dates['dates_short_id'];
 	}
@@ -551,6 +661,31 @@ function wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $resour
 	$bookings_arr['bookings_count'] = count( $bookings_arr['bookings'] );
 
 	return $bookings_arr;
+}
+
+
+/**
+ * Limit a parent-resource iCalendar feed to dates occupying the parent itself.
+ *
+ * This public compatibility wrapper preserves the behavior introduced in
+ * Booking Manager 2.1.20 for callers that use the original helper directly.
+ * The exporter uses the generalized scope helper when child aggregation is
+ * enabled.
+ *
+ * @param array $bookings_arr Booking-list API result.
+ * @param int   $resource_id  Resource requested by the iCalendar feed URL.
+ *
+ * @return array Filtered booking-list API result.
+ */
+function wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $resource_id ) {
+
+	$resource_scope = wpbc_ics_export_get_resource_scope( $resource_id, false );
+
+	if ( ! $resource_scope['is_parent'] ) {
+		return $bookings_arr;
+	}
+
+	return wpbc_ics_export_filter_bookings_by_resource_scope( $bookings_arr, $resource_scope['resource_ids'] );
 }
 
 
@@ -610,9 +745,21 @@ function wpbm_export_ics_feed__wpbm_ics( $param = array( 'wh_booking_type' => '1
 	$_REQUEST['tab'] = 'vm_calendar';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      // FixIn: 10.12.3.2 / 8.5.2.15 / 2.0.11.2.
 
 	// Get array of bookings.
+	$export_resource_id = isset( $param['wh_booking_type'] )
+		? wpbc_ics_export_get_requested_resource_id( $param['wh_booking_type'] )
+		: 0;
+	$include_child_resources = ( 'On' === get_wpbm_option( 'wpbm_is_export_parent_with_children', 'Off' ) );
+	$resource_scope          = wpbc_ics_export_get_resource_scope( $export_resource_id, $include_child_resources );
+
+	if ( $resource_scope['is_parent'] && ! empty( $resource_scope['resource_ids'] ) ) {
+		$param['wh_booking_type'] = implode( ',', array_map( 'absint', $resource_scope['resource_ids'] ) );
+	}
+
 	$bookings_arr = wpbc_api_get_bookings_arr( $param );
-	$export_resource_id = isset( $param['wh_booking_type'] ) ? intval( $param['wh_booking_type'] ) : 0;
-	$bookings_arr = wpbc_ics_export_filter_parent_resource_bookings( $bookings_arr, $export_resource_id );
+
+	if ( $resource_scope['is_parent'] ) {
+		$bookings_arr = wpbc_ics_export_filter_bookings_by_resource_scope( $bookings_arr, $resource_scope['resource_ids'] );
+	}
 
 	ob_start();
 
